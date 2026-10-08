@@ -96,23 +96,8 @@ RUN mkdir -p \
     storage/framework/views \
     storage/logs
 
-
-# ============================================
-# Set permissions
-# ============================================
 RUN chmod -R 775 storage bootstrap/cache
 
-RUN php artisan config:clear \
-    && php artisan cache:clear \
-    && php artisan route:clear \
-    && php artisan view:clear
-# ============================================
-# Render port
-# ============================================
 EXPOSE 10000
 
-
-# ============================================
-# Start Laravel
-# ============================================
 CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]
