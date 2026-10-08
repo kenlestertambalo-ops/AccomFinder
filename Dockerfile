@@ -60,6 +60,9 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Laravel working directory
 # ============================================
 WORKDIR /var/www
+COPY cacert.pem /etc/ssl/certs/cacert.pem
+RUN echo "curl.cainfo=/etc/ssl/certs/cacert.pem" > /usr/local/etc/php/conf.d/cacert.ini \
+    && echo "openssl.cafile=/etc/ssl/certs/cacert.pem" >> /usr/local/etc/php/conf.d/cacert.ini
 
 
 # ============================================
