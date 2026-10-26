@@ -20,7 +20,6 @@ class StudentRegisterController extends Controller
         return view('student.register');
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | STUDENT REGISTER
@@ -34,39 +33,29 @@ class StudentRegisterController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'student_id' => 'required|string|max:255',
-
             'name' => 'required|string|max:255',
 
             'email' => [
                 'required',
+                'string',
                 'email',
                 'max:255',
+                'regex:/^[^@\s]+@[^@\s]+\.[^@\s]+$/',
                 'unique:students,email',
             ],
 
             'phone' => 'required|string|max:255',
 
             'password' => 'required|string|min:6|confirmed',
+        ], [
+            'email.required' => 'Please enter your email address.',
+
+            'email.email' => 'Please enter a valid email address.',
+
+            'email.regex' => 'Please enter an email with a valid domain, such as student@example.com or student@example.ph.',
+
+            'email.unique' => 'This email address is already registered.',
         ]);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CHECK STUDENT ID
-        |--------------------------------------------------------------------------
-        */
-
-        if (Student::where('student_id', $request->student_id)->exists()) {
-
-            return back()
-                ->withInput($request->except('password', 'password_confirmation'))
-                ->with(
-                    'error',
-                    'This Student ID is already registered.'
-                );
-        }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -81,7 +70,6 @@ class StudentRegisterController extends Controller
             STR_PAD_LEFT
         );
 
-
         /*
         |--------------------------------------------------------------------------
         | SAVE REGISTRATION DATA TEMPORARILY
@@ -90,9 +78,8 @@ class StudentRegisterController extends Controller
 
         session([
             'pending_student' => [
-                'student_id' => $request->student_id,
                 'name' => $request->name,
-                'email' => $request->email,
+                'email' => strtolower(trim($request->email)),
                 'phone' => $request->phone,
                 'password' => Hash::make($request->password),
             ],
@@ -104,7 +91,6 @@ class StudentRegisterController extends Controller
                 ->timestamp,
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
         | SEND OTP EMAIL
@@ -112,7 +98,6 @@ class StudentRegisterController extends Controller
         */
 
         try {
-
             Mail::raw(
                 "Hello {$request->name},\n\n"
                 . "Thank you for registering on AccomFinder.\n\n"
@@ -123,15 +108,12 @@ class StudentRegisterController extends Controller
                 . "Thank you,\n"
                 . "AccomFinder",
                 function ($message) use ($request) {
-
                     $message
-                        ->to($request->email)
+                        ->to(trim($request->email))
                         ->subject('AccomFinder Student Registration OTP');
                 }
             );
-
         } catch (\Exception $e) {
-
             /*
             |--------------------------------------------------------------------------
             | REMOVE TEMPORARY DATA IF EMAIL FAILS
@@ -143,7 +125,6 @@ class StudentRegisterController extends Controller
                 'student_otp',
                 'student_otp_expires_at',
             ]);
-
 
             return back()
                 ->withInput(
@@ -157,7 +138,6 @@ class StudentRegisterController extends Controller
                     'We could not send the verification email. Please check your email settings and try again.'
                 );
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -173,7 +153,6 @@ class StudentRegisterController extends Controller
             );
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | SHOW OTP PAGE
@@ -183,7 +162,6 @@ class StudentRegisterController extends Controller
     public function showOtp()
     {
         if (!session('pending_student')) {
-
             return redirect()
                 ->route('student.register')
                 ->with(
@@ -192,10 +170,8 @@ class StudentRegisterController extends Controller
                 );
         }
 
-
         return view('student.otp');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -212,7 +188,6 @@ class StudentRegisterController extends Controller
             ],
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
         | GET PENDING STUDENT
@@ -222,7 +197,6 @@ class StudentRegisterController extends Controller
         $pendingStudent = session('pending_student');
 
         if (!$pendingStudent) {
-
             return redirect()
                 ->route('student.register')
                 ->with(
@@ -230,7 +204,6 @@ class StudentRegisterController extends Controller
                     'Your registration session has expired. Please register again.'
                 );
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -241,7 +214,6 @@ class StudentRegisterController extends Controller
         $expiresAt = session('student_otp_expires_at');
 
         if (!$expiresAt || now()->timestamp > $expiresAt) {
-
             session()->forget([
                 'pending_student',
                 'student_otp',
@@ -256,7 +228,6 @@ class StudentRegisterController extends Controller
                 );
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | CHECK OTP
@@ -269,7 +240,6 @@ class StudentRegisterController extends Controller
             !$storedOtp ||
             !Hash::check($request->otp, $storedOtp)
         ) {
-
             return back()
                 ->withInput()
                 ->with(
@@ -278,21 +248,18 @@ class StudentRegisterController extends Controller
                 );
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | CREATE STUDENT ACCOUNT
         |--------------------------------------------------------------------------
         */
 
-        $student = Student::create([
-            'student_id' => $pendingStudent['student_id'],
+        Student::create([
             'name' => $pendingStudent['name'],
             'email' => $pendingStudent['email'],
             'phone' => $pendingStudent['phone'],
             'password' => $pendingStudent['password'],
         ]);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -305,7 +272,6 @@ class StudentRegisterController extends Controller
             'student_otp',
             'student_otp_expires_at',
         ]);
-
 
         /*
         |--------------------------------------------------------------------------
