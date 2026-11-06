@@ -479,9 +479,11 @@ Route::post('/owner/messages/{id}/reply', [
 Route::get('/session-test', function (\Illuminate\Http\Request $request) {
     return response()->json([
         'has_session' => $request->hasSession(),
+
         'session_started' => $request->hasSession()
             ? $request->session()->isStarted()
             : false,
+
         'session_driver' => config('session.driver'),
     ]);
 });
