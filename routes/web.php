@@ -476,11 +476,12 @@ Route::post('/owner/messages/{id}/reply', [
     'reply'
 ])->name('owner.messages.reply');
 
-Route::get('/session-test', function () {
-    session(['session_test' => 'AccomFinder is working']);
-
-    return response('Session test successful')
-        ->withHeaders([
-            'X-Session-Test' => session('session_test'),
-        ]);
+Route::get('/session-test', function (\Illuminate\Http\Request $request) {
+    return response()->json([
+        'has_session' => $request->hasSession(),
+        'session_started' => $request->hasSession()
+            ? $request->session()->isStarted()
+            : false,
+        'session_driver' => config('session.driver'),
+    ]);
 });
