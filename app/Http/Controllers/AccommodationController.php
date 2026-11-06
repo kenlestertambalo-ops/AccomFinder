@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Accommodation;
 use App\Models\SavedProperty;
+use Illuminate\Support\Facades\Storage;
 
 class AccommodationController extends Controller
 {
@@ -29,7 +30,7 @@ class AccommodationController extends Controller
                 ->with('error', 'Please login as an owner first.');
         }
 
-        $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'location' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
@@ -39,25 +40,39 @@ class AccommodationController extends Controller
             'capacity' => 'required|integer|min:1',
             'description' => 'nullable|string',
             'amenities' => 'nullable|array',
+            'amenities.*' => 'string|max:100',
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
+            'image' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
-        Accommodation::create([
-            'owner_id' => $ownerId,
-            'name' => $request->title,
-            'address' => $request->location,
-            'price' => $request->price,
-            'type' => $request->type,
-            'bedrooms' => $request->bedrooms,
-            'bathrooms' => $request->bathrooms,
-            'capacity' => $request->capacity,
-            'description' => $request->description,
-            'amenities' => $request->amenities ?? [],
-            'status' => 'Available',
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
-        ]);
+        $imagePath = $request->file('image')
+            ->store('accommodations', 'public');
+
+        try {
+            Accommodation::create([
+                'owner_id' => $ownerId,
+                'name' => $validated['title'],
+                'address' => $validated['location'],
+                'price' => $validated['price'],
+                'type' => $validated['type'],
+                'bedrooms' => $validated['bedrooms'],
+                'bathrooms' => $validated['bathrooms'],
+                'capacity' => $validated['capacity'],
+                'description' => $validated['description'] ?? null,
+                'amenities' => $validated['amenities'] ?? [],
+                'status' => $request->boolean('available')
+                    ? 'Available'
+                    : 'Unavailable',
+                'latitude' => $validated['latitude'],
+                'longitude' => $validated['longitude'],
+                'image' => $imagePath,
+            ]);
+        } catch (\Throwable $e) {
+            Storage::disk('public')->delete($imagePath);
+
+            throw $e;
+        }
 
         return redirect()
             ->route('owner.listings')
@@ -71,18 +86,12 @@ class AccommodationController extends Controller
     {
         $studentId = session('student_id');
 
-        $approvedListings = Accommodation::where(
-            'status',
-            'Available'
-        )
-        ->latest()
-        ->get();
+        $approvedListings = Accommodation::where('status', 'Available')
+            ->latest()
+            ->get();
 
-        $availableListings = Accommodation::where(
-            'status',
-            'Available'
-        )
-        ->count();
+        $availableListings = Accommodation::where('status', 'Available')
+            ->count();
 
         $savedPropertiesCount = 0;
 
@@ -93,14 +102,11 @@ class AccommodationController extends Controller
             )->count();
         }
 
-        $locations = Accommodation::where(
-            'status',
-            'Available'
-        )
-        ->whereNotNull('address')
-        ->where('address', '!=', '')
-        ->distinct()
-        ->count('address');
+        $locations = Accommodation::where('status', 'Available')
+            ->whereNotNull('address')
+            ->where('address', '!=', '')
+            ->distinct()
+            ->count('address');
 
         return view(
             'student.dashboard',
@@ -115,17 +121,11 @@ class AccommodationController extends Controller
 
     public function studentListings()
     {
-        $accommodations = Accommodation::where(
-            'status',
-            'Available'
-        )
-        ->latest()
-        ->get();
+        $accommodations = Accommodation::where('status', 'Available')
+            ->latest()
+            ->get();
 
-        return view(
-            'student.search',
-            compact('accommodations')
-        );
+        return view('student.search', compact('accommodations'));
     }
 
     public function show($id)
