@@ -477,13 +477,13 @@ Route::post('/owner/messages/{id}/reply', [
 ])->name('owner.messages.reply');
 
 Route::get('/session-test', function (\Illuminate\Http\Request $request) {
+
+    $request->session()->put('session_test', 'AccomFinder session is working');
+
     return response()->json([
         'has_session' => $request->hasSession(),
-
-        'session_started' => $request->hasSession()
-            ? $request->session()->isStarted()
-            : false,
-
+        'session_started' => $request->session()->isStarted(),
         'session_driver' => config('session.driver'),
+        'session_value' => $request->session()->get('session_test'),
     ]);
 });
