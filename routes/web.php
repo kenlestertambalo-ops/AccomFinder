@@ -475,3 +475,12 @@ Route::post('/owner/messages/{id}/reply', [
     InquiryController::class,
     'reply'
 ])->name('owner.messages.reply');
+
+Route::get('/session-test', function () {
+    session(['session_test' => 'AccomFinder is working']);
+
+    return response('Session test successful')
+        ->withHeaders([
+            'X-Session-Test' => session('session_test'),
+        ]);
+});
