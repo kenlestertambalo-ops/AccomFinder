@@ -100,4 +100,4 @@ RUN chmod -R 775 storage bootstrap/cache
 
 EXPOSE 10000
 
-CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]
+CMD ["sh", "-c", "php artisan migrate --force --path=database/migrations/2026_10_26_070655_add_image_to_accommodations_table.php && php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]
