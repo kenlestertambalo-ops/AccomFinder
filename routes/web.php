@@ -477,19 +477,16 @@ Route::post('/owner/messages/{id}/reply', [
 ])->name('owner.messages.reply');
 
 Route::get('/session-test', function () {
+    $file = null;
+    $line = null;
+
     return response()->json([
-        'message' => 'Manual cookie test',
-    ])
-    ->header('X-AccomFinder-Test', 'Laravel-response')
-    ->cookie(
-        'accomfinder_cookie_test',
-        'working',
-        10,
-        '/',
-        null,
-        true,
-        true,
-        false,
-        'lax'
-    );
+        'headers_already_sent' => headers_sent($file, $line),
+        'output_file' => $file,
+        'output_line' => $line,
+        'session_started' => request()->hasSession()
+            ? request()->session()->isStarted()
+            : false,
+        'session_driver' => config('session.driver'),
+    ]);
 });
