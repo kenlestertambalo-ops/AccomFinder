@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -219,7 +220,7 @@
         .tenant-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 950px;
+            min-width: 1100px;
         }
 
         .tenant-table th {
@@ -553,6 +554,7 @@
                         <th>Tenant</th>
                         <th>Property Type</th>
                         <th>Move-in Date</th>
+                        <th>End Date</th>
                         <th>Monthly Rent</th>
                         <th>Status</th>
                         <th>Contact</th>
@@ -577,6 +579,12 @@
                             <td>
                                 {{ $tenant->start_date
                                     ? \Carbon\Carbon::parse($tenant->start_date)->format('M d, Y')
+                                    : 'N/A' }}
+                            </td>
+
+                            <td>
+                                {{ $tenant->end_date
+                                    ? \Carbon\Carbon::parse($tenant->end_date)->format('M d, Y')
                                     : 'N/A' }}
                             </td>
 
@@ -624,6 +632,7 @@
                                         data-phone="{{ $tenant->phone }}"
                                         data-property-type="{{ $tenant->property_type }}"
                                         data-start-date="{{ $tenant->start_date ? \Carbon\Carbon::parse($tenant->start_date)->format('Y-m-d') : '' }}"
+                                        data-end-date="{{ $tenant->end_date ? \Carbon\Carbon::parse($tenant->end_date)->format('Y-m-d') : '' }}"
                                         data-monthly-rent="{{ $tenant->monthly_rent }}"
                                         data-status="{{ $tenant->status }}"
                                     >
@@ -652,7 +661,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="empty-state">
+                            <td colspan="8" class="empty-state">
                                 <i class="bi bi-people"></i>
                                 <h4>No Tenants Yet</h4>
                                 <p>Add your first tenant to get started.</p>
@@ -715,6 +724,11 @@
                         <div class="col-md-6">
                             <label class="form-label">Move-in Date <span class="required">*</span></label>
                             <input type="date" name="start_date" class="form-control" value="{{ old('start_date') }}" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">End Date <span class="required">*</span></label>
+                            <input type="date" name="end_date" class="form-control" value="{{ old('end_date') }}" required>
                         </div>
 
                         <div class="col-md-6">
@@ -799,6 +813,11 @@
                         </div>
 
                         <div class="col-md-6">
+                            <label class="form-label">End Date <span class="required">*</span></label>
+                            <input type="date" name="end_date" id="edit_end_date" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
                             <label class="form-label">Monthly Rent <span class="required">*</span></label>
                             <input type="number" name="monthly_rent" id="edit_monthly_rent" class="form-control" min="0" step="0.01" required>
                         </div>
@@ -849,6 +868,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         document.getElementById('edit_start_date').value =
             button.getAttribute('data-start-date') || '';
+
+        document.getElementById('edit_end_date').value =
+            button.getAttribute('data-end-date') || '';
 
         document.getElementById('edit_monthly_rent').value =
             button.getAttribute('data-monthly-rent') || '';
