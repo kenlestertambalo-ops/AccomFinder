@@ -476,14 +476,18 @@ Route::post('/owner/messages/{id}/reply', [
     'reply'
 ])->name('owner.messages.reply');
 
-Route::get('/session-test', function (\Illuminate\Http\Request $request) {
-
-    $request->session()->put('session_test', 'AccomFinder session is working');
-
+Route::get('/session-test', function () {
     return response()->json([
-        'has_session' => $request->hasSession(),
-        'session_started' => $request->session()->isStarted(),
-        'session_driver' => config('session.driver'),
-        'session_value' => $request->session()->get('session_test'),
-    ]);
+        'message' => 'Manual cookie test',
+    ])->cookie(
+        'accomfinder_cookie_test',
+        'working',
+        10,
+        '/',
+        null,
+        true,
+        true,
+        false,
+        'lax'
+    );
 });
