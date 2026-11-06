@@ -479,7 +479,9 @@ Route::post('/owner/messages/{id}/reply', [
 Route::get('/session-test', function () {
     return response()->json([
         'message' => 'Manual cookie test',
-    ])->cookie(
+    ])
+    ->header('X-AccomFinder-Test', 'Laravel-response')
+    ->cookie(
         'accomfinder_cookie_test',
         'working',
         10,
