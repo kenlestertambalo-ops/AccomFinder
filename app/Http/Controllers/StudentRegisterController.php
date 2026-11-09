@@ -6,29 +6,15 @@ use Illuminate\Http\Request;
 use App\Models\Student;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class StudentRegisterController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | STUDENT REGISTER PAGE
-    |--------------------------------------------------------------------------
-    */
-
     public function showRegister()
     {
         return view('student.register');
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | STUDENT REGISTER
-    |--------------------------------------------------------------------------
-    |
-    | The student account is NOT created yet.
-    | We first send a 6-digit OTP to the student's email.
-    |
-    */
 
     public function register(Request $request)
     {
@@ -49,19 +35,10 @@ class StudentRegisterController extends Controller
             'password' => 'required|string|min:6|confirmed',
         ], [
             'email.required' => 'Please enter your email address.',
-
             'email.email' => 'Please enter a valid email address.',
-
             'email.regex' => 'Please enter an email with a valid domain, such as student@example.com or student@example.ph.',
-
             'email.unique' => 'This email address is already registered.',
         ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | GENERATE 6-DIGIT OTP
-        |--------------------------------------------------------------------------
-        */
 
         $otp = str_pad(
             random_int(0, 999999),
@@ -69,12 +46,6 @@ class StudentRegisterController extends Controller
             '0',
             STR_PAD_LEFT
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | SAVE REGISTRATION DATA TEMPORARILY
-        |--------------------------------------------------------------------------
-        */
 
         session([
             'pending_student' => [
@@ -90,12 +61,6 @@ class StudentRegisterController extends Controller
                 ->addMinutes(10)
                 ->timestamp,
         ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | SEND OTP EMAIL
-        |--------------------------------------------------------------------------
-        */
 
         try {
             Mail::raw(
@@ -114,12 +79,6 @@ class StudentRegisterController extends Controller
                 }
             );
         } catch (\Exception $e) {
-            /*
-            |--------------------------------------------------------------------------
-            | REMOVE TEMPORARY DATA IF EMAIL FAILS
-            |--------------------------------------------------------------------------
-            */
-
             session()->forget([
                 'pending_student',
                 'student_otp',
@@ -139,12 +98,6 @@ class StudentRegisterController extends Controller
                 );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | GO TO STUDENT OTP PAGE
-        |--------------------------------------------------------------------------
-        */
-
         return redirect()
             ->route('student.otp')
             ->with(
@@ -152,12 +105,6 @@ class StudentRegisterController extends Controller
                 'A 6-digit verification code has been sent to your email.'
             );
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | SHOW OTP PAGE
-    |--------------------------------------------------------------------------
-    */
 
     public function showOtp()
     {
@@ -173,12 +120,6 @@ class StudentRegisterController extends Controller
         return view('student.otp');
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | VERIFY OTP
-    |--------------------------------------------------------------------------
-    */
-
     public function verifyOtp(Request $request)
     {
         $request->validate([
@@ -187,12 +128,6 @@ class StudentRegisterController extends Controller
                 'digits:6',
             ],
         ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | GET PENDING STUDENT
-        |--------------------------------------------------------------------------
-        */
 
         $pendingStudent = session('pending_student');
 
@@ -204,12 +139,6 @@ class StudentRegisterController extends Controller
                     'Your registration session has expired. Please register again.'
                 );
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | CHECK OTP EXPIRATION
-        |--------------------------------------------------------------------------
-        */
 
         $expiresAt = session('student_otp_expires_at');
 
@@ -228,12 +157,6 @@ class StudentRegisterController extends Controller
                 );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | CHECK OTP
-        |--------------------------------------------------------------------------
-        */
-
         $storedOtp = session('student_otp');
 
         if (
@@ -250,16 +173,32 @@ class StudentRegisterController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | CREATE STUDENT ACCOUNT
+        | CREATE STUDENT ACCOUNT WITH AUTOMATIC STUDENT ID
         |--------------------------------------------------------------------------
         */
 
-        Student::create([
-            'name' => $pendingStudent['name'],
-            'email' => $pendingStudent['email'],
-            'phone' => $pendingStudent['phone'],
-            'password' => $pendingStudent['password'],
-        ]);
+        DB::transaction(function () use ($pendingStudent) {
+
+            $student = Student::create([
+                'student_id' => 'PENDING-' . Str::uuid(),
+                'name' => $pendingStudent['name'],
+                'email' => $pendingStudent['email'],
+                'phone' => $pendingStudent['phone'],
+                'password' => $pendingStudent['password'],
+            ]);
+
+            $student->student_id = 'AF-'
+                . now()->format('Y')
+                . '-'
+                . str_pad(
+                    (string) $student->id,
+                    5,
+                    '0',
+                    STR_PAD_LEFT
+                );
+
+            $student->save();
+        });
 
         /*
         |--------------------------------------------------------------------------
