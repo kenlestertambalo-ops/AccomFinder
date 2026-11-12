@@ -1,9 +1,4 @@
 <!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Messages | AccomFinder</title>
@@ -495,12 +490,6 @@
 
     </style>
 
-</head>
-
-
-<body>
-
-
     <!-- =====================================================
          SIDEBAR
     ====================================================== -->
@@ -699,7 +688,15 @@
 
                                 <div class="message-date">
 
-                                    {{ $inquiry->created_at->format('M d, Y h:i A') }}
+                                    @php
+                                        $conversationMessages = $messages->get($inquiry->id, collect());
+                                        $latestMessage = $conversationMessages->last();
+                                        $displayDate = $latestMessage?->created_at ?? $inquiry->created_at;
+                                    @endphp
+
+                                    {{ $displayDate
+                                        ? $displayDate->copy()->timezone('Asia/Manila')->format('M d, Y h:i A')
+                                        : 'N/A' }}
 
                                 </div>
 
@@ -751,7 +748,7 @@
 
                                                 <small class="chat-time">
 
-                                                    {{ $message->created_at->format('M d, Y h:i A') }}
+                                                    {{ $message->created_at?->copy()->timezone('Asia/Manila')->format('M d, Y h:i A') ?? 'N/A' }}
 
                                                 </small>
 
@@ -771,7 +768,7 @@
 
                                                 <small class="chat-time">
 
-                                                    {{ $message->created_at->format('M d, Y h:i A') }}
+                                                    {{ $message->created_at?->copy()->timezone('Asia/Manila')->format('M d, Y h:i A') ?? 'N/A' }}
 
                                                 </small>
 
@@ -907,8 +904,3 @@
         </div>
 
     </div>
-
-
-</body>
-
-</html>

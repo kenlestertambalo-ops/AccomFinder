@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Inquiry;
 use App\Models\Accommodation;
 use App\Models\Message;
+use App\Models\Room;
 
 class InquiryController extends Controller
 {
@@ -330,4 +331,72 @@ class InquiryController extends Controller
                 'Reply sent successfully!'
             );
     }
+
+/*
+|--------------------------------------------------------------------------
+| STUDENT SCHEDULES A ROOM VISIT
+|--------------------------------------------------------------------------
+*/
+
+public function storeVisit(Request $request, $accommodationId, $roomId)
+{
+    $studentId = session('student_id');
+
+    if (!$studentId) {
+        return redirect()
+            ->route('student.login')
+            ->with('error', 'Please login as a student first.');
+    }
+
+    $request->validate([
+        'visit_date' => 'required|date|after_or_equal:today',
+        'visit_time' => 'required|date_format:H:i',
+        'visit_message' => 'nullable|string|max:2000',
+    ]);
+
+    $accommodation = Accommodation::findOrFail($accommodationId);
+
+    // Make sure the selected room belongs to this property
+    // and is currently available.
+    $room = Room::where('accommodation_id', $accommodationId)
+        ->where('status', 'Available')
+        ->findOrFail($roomId);
+
+    $visitMessage = 'ROOM VISIT REQUEST'
+        . "\nRoom: " . $room->room_name
+        . "\nPreferred Date: " . $request->visit_date
+        . "\nPreferred Time: " . $request->visit_time
+        . "\nMessage: " . ($request->visit_message ?: 'No additional message.');
+
+    $inquiry = Inquiry::create([
+        'student_id' => $studentId,
+        'accommodation_id' => $accommodation->id,
+        'owner_id' => $accommodation->owner_id,
+        'room_id' => $room->id,
+        'message' => $visitMessage,
+        'status' => 'Unread',
+        'inquiry_type' => 'Visit',
+        'visit_date' => $request->visit_date,
+        'visit_time' => $request->visit_time,
+        'visit_status' => 'Pending',
+    ]);
+
+    // Also save the request as a conversation message
+    // so it appears in the existing Messages feature.
+    Message::create([
+        'inquiry_id' => $inquiry->id,
+        'student_id' => $studentId,
+        'owner_id' => $accommodation->owner_id,
+        'sender_type' => 'student',
+        'message' => $visitMessage,
+    ]);
+
+    return back()->with(
+        'success',
+        'Your room visit request has been sent to the property owner!'
+    );
 }
+
+}
+
+

@@ -1,4 +1,3 @@
-
 @php
     $rooms = $accommodation->roomRecords ?? collect();
 @endphp
@@ -488,6 +487,74 @@
             color: #991b1b;
         }
 
+
+        /* SCHEDULE A VISIT */
+
+        .schedule-button {
+            width: 100%;
+            margin-top: 16px;
+            padding: 11px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: .2s;
+        }
+
+        .schedule-button:hover {
+            background: #1d4ed8;
+        }
+
+        .visit-form {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8fafc;
+            border: 1px solid #dbeafe;
+            border-radius: 9px;
+        }
+
+        .visit-form h4 {
+            color: #173b63;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .visit-form input,
+        .visit-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 7px 0 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font-size: 13px;
+            font-family: Arial, sans-serif;
+        }
+
+        .visit-form input:focus,
+        .visit-form textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .visit-submit {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 7px;
+            background: #059669;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .visit-submit:hover {
+            background: #047857;
+        }
+
         /* RESPONSIVE */
 
         @media(max-width: 1100px) {
@@ -768,6 +835,71 @@
 
                                         </div>
 
+                                        @if(strtolower($room->status ?? '') === 'available')
+
+                                            <button
+                                                type="button"
+                                                class="schedule-button"
+                                                onclick="toggleVisitForm({{ $room->id }})">
+                                                <i class="bi bi-calendar-check"></i>
+                                                Schedule a Visit
+                                            </button>
+
+                                            <div
+                                                class="visit-form"
+                                                id="visit-form-{{ $room->id }}">
+
+                                                <h4>Schedule Room Visit</h4>
+
+                                                <form
+                                                    action="{{ route('student.visit.store', [$accommodation->id, $room->id]) }}"
+                                                    method="POST">
+
+                                                    @csrf
+
+                                                    <label class="form-label" for="visit-date-{{ $room->id }}">
+                                                        Preferred Visit Date
+                                                    </label>
+
+                                                    <input
+                                                        type="date"
+                                                        id="visit-date-{{ $room->id }}"
+                                                        name="visit_date"
+                                                        min="{{ now()->toDateString() }}"
+                                                        value="{{ old('visit_date') }}"
+                                                        required>
+
+                                                    <label class="form-label" for="visit-time-{{ $room->id }}">
+                                                        Preferred Visit Time
+                                                    </label>
+
+                                                    <input
+                                                        type="time"
+                                                        id="visit-time-{{ $room->id }}"
+                                                        name="visit_time"
+                                                        value="{{ old('visit_time') }}"
+                                                        required>
+
+                                                    <label class="form-label" for="visit-message-{{ $room->id }}">
+                                                        Additional Message (Optional)
+                                                    </label>
+
+                                                    <textarea
+                                                        id="visit-message-{{ $room->id }}"
+                                                        name="visit_message"
+                                                        placeholder="I would like to inspect the room and facilities."
+                                                        style="min-height:80px;">{{ old('visit_message') }}</textarea>
+
+                                                    <button type="submit" class="visit-submit">
+                                                        <i class="bi bi-send-fill"></i>
+                                                        Send Visit Request
+                                                    </button>
+
+                                                </form>
+                                            </div>
+
+                                        @endif
+
                                     </div>
 
                                 @empty
@@ -906,6 +1038,29 @@
         </main>
 
     </div>
+
+    <!-- SCHEDULE VISIT SCRIPT -->
+    <script>
+        function toggleVisitForm(roomId) {
+            const form = document.getElementById('visit-form-' + roomId);
+
+            if (!form) {
+                return;
+            }
+
+            form.style.display = form.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Reopen the relevant room form if validation fails.
+        @if($errors->any() && old('visit_date'))
+            document.addEventListener('DOMContentLoaded', function () {
+                const forms = document.querySelectorAll('.visit-form');
+                forms.forEach(function (form) {
+                    form.style.display = 'block';
+                });
+            });
+        @endif
+    </script>
 
     <!-- MAP SCRIPT -->
 

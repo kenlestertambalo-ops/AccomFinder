@@ -685,3 +685,8 @@ Route::delete('/owner/tenants/{id}', [
 
 Route::get('/owner/tenants/{id}/statement', [OwnerController::class, 'tenantStatement'])
     ->name('owner.tenants.statement');
+
+    Route::post(
+    '/student/accommodation/{accommodation}/rooms/{room}/visit',
+    [InquiryController::class, 'storeVisit']
+)->name('student.visit.store');

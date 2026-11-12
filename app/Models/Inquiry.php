@@ -16,53 +16,37 @@ class Inquiry extends Model
         'accommodation_id',
         'owner_id',
         'tenant_id',
+        'room_id',
         'message',
         'reply',
         'status',
+        'inquiry_type',
+        'visit_date',
+        'visit_time',
+        'visit_status',
     ];
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | STUDENT
-    |--------------------------------------------------------------------------
-    */
+    protected $casts = [
+        'visit_date' => 'date',
+    ];
 
     public function student()
     {
-        return $this->belongsTo(
-            Student::class,
-            'student_id'
-        );
+        return $this->belongsTo(Student::class, 'student_id');
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | ACCOMMODATION
-    |--------------------------------------------------------------------------
-    */
 
     public function accommodation()
     {
-        return $this->belongsTo(
-            Accommodation::class,
-            'accommodation_id'
-        );
+        return $this->belongsTo(Accommodation::class, 'accommodation_id');
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | OWNER
-    |--------------------------------------------------------------------------
-    */
 
     public function owner()
     {
-        return $this->belongsTo(
-            Owner::class,
-            'owner_id'
-        );
+        return $this->belongsTo(Owner::class, 'owner_id');
+    }
+
+    public function room()
+    {
+        return $this->belongsTo(Room::class, 'room_id');
     }
 }
