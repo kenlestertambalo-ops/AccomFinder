@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -67,6 +68,10 @@
             text-decoration: none;
             font-size: 17px;
         }
+
+        .form-text {
+            color: #718096;
+        }
     </style>
 </head>
 
@@ -88,11 +93,7 @@
 
             <!-- NAME -->
             <div class="col-md-6">
-
-                <label>
-                    Name
-                </label>
-
+                <label>Name</label>
                 <input
                     type="text"
                     name="name"
@@ -100,17 +101,11 @@
                     value="{{ old('name', $tenant->name) }}"
                     required
                 >
-
             </div>
-
 
             <!-- EMAIL -->
             <div class="col-md-6">
-
-                <label>
-                    Email
-                </label>
-
+                <label>Email</label>
                 <input
                     type="email"
                     name="email"
@@ -118,17 +113,11 @@
                     value="{{ old('email', $tenant->email) }}"
                     required
                 >
-
             </div>
-
 
             <!-- PHONE -->
             <div class="col-md-6">
-
-                <label>
-                    Phone
-                </label>
-
+                <label>Phone</label>
                 <input
                     type="text"
                     name="phone"
@@ -136,23 +125,17 @@
                     value="{{ old('phone', $tenant->phone) }}"
                     required
                 >
-
             </div>
-
 
             <!-- PROPERTY TYPE -->
             <div class="col-md-6">
-
-                <label>
-                    Property Type
-                </label>
+                <label>Property Type</label>
 
                 <select
                     name="property_type"
                     class="form-select"
                     required
                 >
-
                     <option value="Boarding House"
                         {{ old('property_type', $tenant->property_type) == 'Boarding House' ? 'selected' : '' }}>
                         Boarding House
@@ -177,54 +160,38 @@
                         {{ old('property_type', $tenant->property_type) == 'Bedspace' ? 'selected' : '' }}>
                         Bedspace
                     </option>
-
                 </select>
-
             </div>
-
 
             <!-- START DATE -->
             <div class="col-md-6">
-
-                <label>
-                    Move-in Date
-                </label>
+                <label>Move-in Date</label>
 
                 <input
                     type="date"
                     name="start_date"
                     class="form-control"
-                    value="{{ old('start_date', $tenant->start_date) }}"
+                    value="{{ old('start_date', $tenant->start_date ? \Carbon\Carbon::parse($tenant->start_date)->format('Y-m-d') : '') }}"
                     required
                 >
-
             </div>
-
 
             <!-- END DATE -->
             <div class="col-md-6">
-
-                <label>
-                    Lease End Date
-                </label>
+                <label>Lease End Date</label>
 
                 <input
                     type="date"
                     name="end_date"
                     class="form-control"
-                    value="{{ old('end_date', $tenant->end_date) }}"
+                    value="{{ old('end_date', $tenant->end_date ? \Carbon\Carbon::parse($tenant->end_date)->format('Y-m-d') : '') }}"
                     required
                 >
-
             </div>
-
 
             <!-- MONTHLY RENT -->
             <div class="col-md-6">
-
-                <label>
-                    Monthly Rent
-                </label>
+                <label>Monthly Rent (₱)</label>
 
                 <input
                     type="number"
@@ -235,23 +202,38 @@
                     step="0.01"
                     required
                 >
-
             </div>
 
+            <!-- DUE DAY -->
+            <div class="col-md-6">
+                <label>Monthly Payment Due Day</label>
+
+                <input
+                    type="number"
+                    name="due_day"
+                    class="form-control"
+                    value="{{ old('due_day', $tenant->due_day ?? 5) }}"
+                    min="1"
+                    max="31"
+                    step="1"
+                    required
+                >
+
+                <small class="form-text">
+                    Enter the day of the month when rent is due (1–31).
+                    Example: 5 means rent is due every 5th day of the month.
+                </small>
+            </div>
 
             <!-- STATUS -->
             <div class="col-md-6">
-
-                <label>
-                    Status
-                </label>
+                <label>Status</label>
 
                 <select
                     name="status"
                     class="form-select"
                     required
                 >
-
                     <option value="Active"
                         {{ old('status', $tenant->status) == 'Active' ? 'selected' : '' }}>
                         Active
@@ -261,14 +243,12 @@
                         {{ old('status', $tenant->status) == 'Inactive' ? 'selected' : '' }}>
                         Inactive
                     </option>
-
                 </select>
-
             </div>
 
         </div>
 
-
+        <!-- BUTTONS -->
         <div class="mt-4 d-flex gap-3">
 
             <a

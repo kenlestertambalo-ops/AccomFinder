@@ -1,1727 +1,949 @@
+
+@php
+    $rooms = $accommodation->roomRecords ?? collect();
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <title>{{ $accommodation->name }} | AccomFinder</title>
 
-    <title>
-        {{ $accommodation->name }} | AccomFinder
-    </title>
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-
-    <!-- Bootstrap -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-
-
-    <!-- Bootstrap Icons -->
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-    >
-
-
-    <!-- Leaflet -->
-    <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    >
-
+    <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
 
         body {
-            background: #f8fafc;
-            font-family: Arial, sans-serif;
-            color: #1e293b;
+            background: #f5f7fb;
+            color: #333;
         }
 
+        /* LEFT SIDEBAR */
 
-        .page {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 20px;
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100vh;
+            background: #fff;
+            border-right: 1px solid #ddd;
+            z-index: 1000;
         }
 
+        .logo {
+            height: 145px;
+            padding: 25px;
+            border-bottom: 1px solid #eee;
+        }
 
-        .back-btn {
-            display: inline-block;
-            margin-bottom: 15px;
-            text-decoration: none;
+        .logo h2 {
             color: #2563eb;
-            font-size: 14px;
+            font-size: 30px;
+            font-weight: 700;
         }
 
-
-        /* =====================================================
-           MAIN LAYOUT
-        ===================================================== */
-
-        .main-layout {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-            align-items: start;
-        }
-
-
-        /* =====================================================
-           DETAILS CARD
-        ===================================================== */
-
-        .details-card {
-            background: white;
-            border-radius: 10px;
-            border: 1px solid #dbe3ec;
-            padding: 20px;
-        }
-
-
-        .title {
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-
-        .location {
-            color: #64748b;
-            font-size: 14px;
-            margin-bottom: 12px;
-        }
-
-
-        .price {
-            color: #0f766e;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-
-        .status {
-            display: inline-block;
-            background: #dcfce7;
-            color: #15803d;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 13px;
-            font-weight: bold;
-        }
-
-
-        .info-row {
-            margin-top: 15px;
-        }
-
-
-        .info-item {
-            margin-bottom: 12px;
-            font-size: 14px;
-        }
-
-
-        /* =====================================================
-           AMENITIES
-        ===================================================== */
-
-        .amenity {
-            margin-right: 5px;
-            margin-bottom: 5px;
-        }
-
-
-        /* =====================================================
-           MAP
-        ===================================================== */
-
-        .map-title {
-            margin-top: 20px;
-            margin-bottom: 10px;
-            font-size: 17px;
-            font-weight: bold;
-        }
-
-
-        #map {
-            width: 100%;
-            height: 400px;
-            border-radius: 8px;
-            border: 1px solid #dbe3ec;
-        }
-
-
-        /* =====================================================
-           NEARBY LANDMARKS
-        ===================================================== */
-
-        .landmarks-section {
-            margin-top: 18px;
-            padding: 18px;
-            background: #f8fbfd;
-            border: 1px solid #dbe3ec;
-            border-radius: 9px;
-        }
-
-
-        .landmarks-title {
-            margin: 0 0 5px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #17395f;
-        }
-
-
-        .landmarks-title i {
-            color: #14945f;
-            margin-right: 6px;
-        }
-
-
-        .landmarks-help {
-            margin: 0 0 15px;
-            color: #64748b;
-            font-size: 12px;
-            line-height: 1.5;
-        }
-
-
-        .landmark-loading {
-            display: none;
-            padding: 12px;
-            background: white;
-            border: 1px solid #dbe3ec;
-            border-radius: 7px;
-            color: #64748b;
-            font-size: 13px;
-        }
-
-
-        .landmark-message {
-            padding: 12px;
-            background: white;
-            border: 1px solid #dbe3ec;
-            border-radius: 7px;
-            color: #64748b;
-            font-size: 13px;
-        }
-
-
-        /* =====================================================
-           LANDMARK CATEGORY
-        ===================================================== */
-
-        .landmark-category {
-            margin-top: 18px;
-        }
-
-
-        .landmark-category:first-child {
-            margin-top: 0;
-        }
-
-
-        .category-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 10px;
-            color: #17395f;
-            font-size: 15px;
-            font-weight: bold;
-        }
-
-
-        .category-title i {
-            color: #14945f;
-            font-size: 17px;
-        }
-
-
-        .landmark-list {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
-        }
-
-
-        .landmark-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 10px;
-        }
-
-
-        .landmark-icon {
-            width: 36px;
-            height: 36px;
-            min-width: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #dcfce7;
-            color: #059669;
-            border-radius: 8px;
+        .logo p {
+            margin-top: 5px;
+            color: gray;
             font-size: 16px;
         }
 
-
-        .landmark-info {
-            min-width: 0;
+        .menu {
+            padding: 20px;
         }
 
-
-        .landmark-name {
-            font-size: 13px;
-            font-weight: bold;
-            color: #1e293b;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-
-        .landmark-type {
-            color: #64748b;
-            font-size: 11px;
-            margin-top: 2px;
-        }
-
-
-        .landmark-distance {
-            color: #059669;
-            font-size: 11px;
-            font-weight: bold;
-            margin-top: 3px;
-        }
-
-        .category-empty {
-            padding: 9px 10px;
-            background: white;
-            border: 1px solid #e2e8f0;
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            color: #444;
+            text-decoration: none;
             border-radius: 8px;
-            color: #94a3b8;
-            font-size: 12px;
+            font-size: 18px;
+            transition: .2s;
         }
 
-        .right-column {
+        .menu a i {
+            font-size: 18px;
+        }
+
+        .menu a:hover {
+            background: #f1f5f9;
+        }
+
+        .menu a.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .logout {
+            position: absolute;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+        }
+
+        .logout a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 15px;
+            color: #444;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 18px;
+        }
+
+        .logout a:hover {
+            background: #f1f5f9;
+            color: #2563eb;
+        }
+
+        /* MAIN CONTENT */
+
+        .main {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            min-height: 100vh;
+        }
+
+        /* TOP NAVBAR */
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 250px;
+            height: 70px;
+            background: white;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 30px;
+            z-index: 900;
+        }
+
+        .user-info {
             display: flex;
             flex-direction: column;
+            text-align: right;
+        }
+
+        .user-info strong {
+            font-size: 18px;
+            color: #111;
+        }
+
+        .user-info span {
+            margin-top: 3px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* PAGE CONTENT */
+
+        .content {
+            padding: 100px 30px 30px;
+        }
+
+        .page-heading {
+            margin-bottom: 25px;
+        }
+
+        .page-heading h1 {
+            margin-bottom: 5px;
+            color: #173b63;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .page-heading p {
+            color: #777;
+            font-size: 15px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            color: #2563eb;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* DETAILS LAYOUT */
+
+        .details-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.8fr) minmax(280px, .8fr);
+            gap: 22px;
+            align-items: start;
+        }
+
+        .main-card,
+        .side-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,.03);
+        }
+
+        /* PROPERTY INFORMATION */
+
+        .property-title {
+            font-size: 27px;
+            font-weight: 700;
+            color: #173b63;
+            margin-bottom: 10px;
+        }
+
+        .property-address {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+
+        .property-status {
+            display: inline-block;
+            padding: 7px 13px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .available {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .occupied {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .property-information {
+            border-top: 1px solid #e2e8f0;
+            margin-top: 18px;
+            padding-top: 18px;
+        }
+
+        .property-description {
+            color: #475569;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* ROOMS SECTION */
+
+        .rooms-section {
+            margin-top: 30px;
+        }
+
+        .rooms-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .rooms-heading h2 {
+            font-size: 21px;
+            color: #173b63;
+        }
+
+        .room-count {
+            background: #eff6ff;
+            color: #2563eb;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 15px;
         }
 
-
-        .owner-card,
-        .inquiry-card {
-            background: white;
-            border: 1px solid #dbe3ec;
-            border-radius: 10px;
+        .room-card {
+            border: 1px solid #dce3ed;
+            border-radius: 12px;
             padding: 18px;
+            background: white;
+            transition: .2s ease;
+            min-width: 0;
         }
 
-
-        .card-title {
-            font-size: 15px;
-            font-weight: bold;
-            margin-bottom: 12px;
+        .room-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 16px rgba(0,0,0,.07);
         }
 
-
-        .owner-box {
+        .room-header {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 10px;
+            margin-bottom: 14px;
         }
 
+        .room-name {
+            font-size: 17px;
+            font-weight: 700;
+            color: #173b63;
+        }
 
-        .owner-icon {
-            width: 40px;
-            height: 40px;
+        .room-status {
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .room-price {
+            font-size: 22px;
+            color: #07866f;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .room-price small {
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        .room-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            font-size: 13px;
+            color: #475569;
+        }
+
+        .room-details p {
+            line-height: 1.5;
+        }
+
+        .room-description,
+        .room-amenities {
+            margin-top: 13px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #475569;
+            overflow-wrap: anywhere;
+        }
+
+        .empty-rooms {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 35px 15px;
+            border: 1px dashed #cbd5e1;
+            border-radius: 10px;
+            color: #64748b;
+            background: #f8fafc;
+        }
+
+        /* MAP */
+
+        .section-title {
+            font-size: 19px;
+            color: #173b63;
+            margin: 30px 0 15px;
+        }
+
+        #map {
+            width: 100%;
+            height: 320px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* OWNER CARD */
+
+        .side-title {
+            font-size: 17px;
+            color: #173b63;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+        .owner-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .owner-avatar {
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
-            background: #d1fae5;
-            color: #059669;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
+            background: #d1fae5;
+            color: #059669;
+            font-weight: 700;
+            font-size: 18px;
         }
 
-
         .owner-name {
-            font-weight: bold;
+            font-weight: 700;
             font-size: 14px;
         }
 
-
-        .owner-type {
+        .owner-label {
             color: #64748b;
             font-size: 12px;
+            margin-top: 4px;
         }
 
-        .inquiry-label {
+        /* INQUIRY FORM */
+
+        .form-label {
+            display: block;
             font-size: 13px;
-            font-weight: bold;
-            margin-bottom: 7px;
+            font-weight: 600;
+            margin-bottom: 8px;
         }
 
-
-        .inquiry-textarea {
+        textarea {
             width: 100%;
-            height: 110px;
-            resize: vertical;
+            min-height: 120px;
+            padding: 12px;
             border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            padding: 10px;
+            border-radius: 8px;
+            font-family: Arial, sans-serif;
             font-size: 13px;
+            resize: vertical;
         }
 
-
-        .inquiry-textarea:focus {
+        textarea:focus {
             outline: none;
             border-color: #2563eb;
-            box-shadow:
-                0 0 0 2px
-                rgba(37, 99, 235, 0.1);
         }
 
-
-        .send-btn {
+        .send-button {
             width: 100%;
+            padding: 12px;
+            margin-top: 12px;
             background: #2563eb;
-            border: none;
             color: white;
-            padding: 9px;
-            border-radius: 5px;
-            font-size: 13px;
-            margin-top: 10px;
+            border: none;
+            border-radius: 7px;
+            font-weight: 600;
             cursor: pointer;
+            font-size: 14px;
         }
 
-
-        .send-btn:hover {
+        .send-button:hover {
             background: #1d4ed8;
         }
 
-        .success-message {
+        .alert {
+            padding: 12px;
+            border-radius: 7px;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .alert-success {
             background: #dcfce7;
             color: #166534;
-            border: 1px solid #86efac;
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            font-size: 13px;
         }
 
-
-        .error-message {
+        .alert-error {
             background: #fee2e2;
             color: #991b1b;
-            border: 1px solid #fca5a5;
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            font-size: 13px;
         }
 
-        @media (max-width: 768px) {
+        /* RESPONSIVE */
 
-            .page {
-                margin: 10px auto;
-                padding: 10px;
+        @media(max-width: 1100px) {
+            .details-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width: 900px) {
+            .rooms-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width: 700px) {
+            .sidebar {
+                width: 75px;
             }
 
+            .logo {
+                padding: 20px 5px;
+                height: 90px;
+                text-align: center;
+            }
 
-            .main-layout {
+            .logo h2 {
+                font-size: 12px;
+                overflow-wrap: anywhere;
+            }
+
+            .logo p {
+                display: none;
+            }
+
+            .menu {
+                padding: 15px 8px;
+            }
+
+            .menu a {
+                justify-content: center;
+                padding: 13px 5px;
+                font-size: 0;
+            }
+
+            .menu a i {
+                font-size: 21px;
+            }
+
+            .logout {
+                left: 8px;
+                right: 8px;
+            }
+
+            .logout a {
+                justify-content: center;
+                font-size: 0;
+            }
+
+            .logout a i {
+                font-size: 21px;
+            }
+
+            .main {
+                margin-left: 75px;
+                width: calc(100% - 75px);
+            }
+
+            .navbar {
+                left: 75px;
+                padding: 0 12px;
+            }
+
+            .content {
+                padding: 95px 12px 20px;
+            }
+
+            .room-details {
                 grid-template-columns: 1fr;
             }
 
-
-            #map {
-                height: 350px;
-            }
-            .landmark-list {
-                grid-template-columns: 1fr;
+            .main-card,
+            .side-card {
+                padding: 16px;
             }
         }
     </style>
 </head>
 
-
 <body>
-<div class="page">
 
-    @if(session('success'))
-        <div class="success-message">
-            {{ session('success') }}
+    <!-- LEFT SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <h2>AccomFinder</h2>
+            <p>Student Portal</p>
         </div>
 
-    @endif
+        <nav class="menu">
 
-    @if(session('error'))
-        <div class="error-message">
-            {{ session('error') }}
+            <a href="{{ route('student.dashboard') }}">
+                <i class="bi bi-house-door-fill"></i>
+                Dashboard
+            </a>
+
+            <a href="{{ route('student.search') }}" class="active">
+                <i class="bi bi-search"></i>
+                Search
+            </a>
+
+            <a href="{{ route('student.saved') }}">
+                <i class="bi bi-heart-fill"></i>
+                Saved
+            </a>
+
+            <a href="{{ route('student.messages') }}">
+                <i class="bi bi-chat-square-dots-fill"></i>
+                Messages
+            </a>
+
+        </nav>
+
+        <div class="logout">
+            <a href="{{ route('student.logout') }}">
+                <i class="bi bi-box-arrow-left"></i>
+                Logout
+            </a>
         </div>
-    @endif
 
-    @if($errors->any())
-        <div class="error-message">
-            @foreach($errors->all() as $error)
+    </aside>
+
+    <!-- MAIN CONTENT -->
+
+    <div class="main">
+
+        <!-- TOP NAVBAR -->
+
+        <header class="navbar">
+
+            <div class="user-info">
+                <strong>
+                    {{ session('student_name', 'Student') }}
+                </strong>
+
+                <span>
+                    {{ session('student_email', 'Welcome') }}
+                </span>
+            </div>
+
+        </header>
+
+        <main class="content">
+
+            <a href="{{ route('student.search') }}" class="back-link">
+                <i class="bi bi-arrow-left"></i>
+                Back to Search
+            </a>
+
+            <div class="page-heading">
+                <h1>Accommodation Details</h1>
+                <p>View property information and available rooms.</p>
+            </div>
+
+            <div class="details-layout">
+
+                <!-- LEFT COLUMN -->
 
                 <div>
-                    {{ $error }}
-                </div>
-            @endforeach
-        </div>
-    @endif
 
-    <div class="main-layout">
+                    <div class="main-card">
 
-        <div class="details-card">
+                        <!-- PROPERTY INFORMATION -->
 
-            <h1 class="title">
-                {{ $accommodation->name }}
-            </h1>
+                        <h2 class="property-title">
+                            {{ $accommodation->name }}
+                        </h2>
 
-            <p class="location">
-                📍 {{ $accommodation->address }}
-            </p>
+                        <div class="property-address">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            {{ $accommodation->address }}
+                        </div>
 
-            <div class="price">
-
-                ₱{{ number_format($accommodation->price, 2) }}
-
-            </div>
-
-            <span class="status">
-                {{ $accommodation->status }}
-            </span>
-            <hr>
-
-            <div class="row info-row">
-                <div class="col-md-6">
-                    <div class="info-item">
-
-                        <strong>
-                            Property Type:
-                        </strong>
-
-                        {{ $accommodation->type ?? 'Not specified' }}
-
-                    </div>
-
-
-                    <div class="info-item">
-
-                        <strong>
-                            Bedrooms:
-                        </strong>
-
-                        {{ $accommodation->bedrooms ?? 'Not specified' }}
-
-                    </div>
-
-
-                    <div class="info-item">
-
-                        <strong>
-                            Bathrooms:
-                        </strong>
-
-                        {{ $accommodation->bathrooms ?? 'Not specified' }}
-
-                    </div>
-
-
-                    <div class="info-item">
-
-                        <strong>
-                            Capacity:
-                        </strong>
-
-                        {{ $accommodation->capacity ?? 'Not specified' }}
-
-                    </div>
-
-
-                </div>
-
-
-                <div class="col-md-6">
-
-
-                    <div class="info-item">
-
-                        <strong>
-                            Description:
-                        </strong>
-
-                        {{ $accommodation->description ?? 'No description available.' }}
-
-                    </div>
-                </div>
-            </div>
-
-            @if($accommodation->amenities)
-
-                <hr>
-
-                <h5>
-                    Amenities
-                </h5>
-
-
-                @php
-
-                    $amenities = is_array($accommodation->amenities)
-                        ? $accommodation->amenities
-                        : json_decode($accommodation->amenities, true);
-
-                @endphp
-
-
-                @if($amenities)
-
-                    @foreach($amenities as $amenity)
-
-                        <span class="badge bg-primary amenity">
-
-                            {{ $amenity }}
-
+                        <span class="property-status
+                            {{ strtolower($accommodation->status ?? '') === 'available' ? 'available' : 'occupied' }}">
+                            {{ $accommodation->status ?? 'Unavailable' }}
                         </span>
 
-                    @endforeach
-
-                @endif
-
-            @endif
-
-            <div class="map-title">
-
-                Location Map
-
-            </div>
-
-
-            <div id="map"></div>
-
-            <div class="landmarks-section">
-
-
-                <h3 class="landmarks-title">
-
-                    <i class="bi bi-pin-map-fill"></i>
-
-                    Nearby Landmarks
-
-                </h3>
-
-
-                <p class="landmarks-help">
-
-                    Find schools, malls, banks, and convenience
-                    stores within 1 kilometer of this property.
-
-                </p>
-
-                <div
-                    id="landmarkLoading"
-                    class="landmark-loading"
-                >
-
-                    <i class="bi bi-arrow-repeat"></i>
-
-                    Finding nearby places...
-
-                </div>
-
-                <div
-                    id="landmarkMessage"
-                    class="landmark-message"
-                >
-
-                    Searching for nearby places...
-
-                </div>
-
-                <div
-                    id="schoolCategory"
-                    class="landmark-category"
-                    style="display:none;"
-                >
-
-                    <div class="category-title">
-
-                        <i class="bi bi-mortarboard-fill"></i>
-
-                        Schools & Universities
-
-                    </div>
-
-
-                    <div
-                        id="schoolList"
-                        class="landmark-list"
-                    ></div>
-
-                </div>
-                <div
-                    id="mallCategory"
-                    class="landmark-category"
-                    style="display:none;"
-                >
-
-                    <div class="category-title">
-
-                        <i class="bi bi-bag-fill"></i>
-
-                        Malls & Shopping
-
-                    </div>
-
-
-                    <div
-                        id="mallList"
-                        class="landmark-list"
-                    ></div>
-
-                </div>
-                <div
-                    id="bankCategory"
-                    class="landmark-category"
-                    style="display:none;"
-                >
-
-                    <div class="category-title">
-
-                        <i class="bi bi-bank2"></i>
-
-                        Banks & ATMs
-
-                    </div>
-
-
-                    <div
-                        id="bankList"
-                        class="landmark-list"
-                    ></div>
-
-                </div>
-                <div
-                    id="convenienceCategory"
-                    class="landmark-category"
-                    style="display:none;"
-                >
-
-                    <div class="category-title">
-
-                        <i class="bi bi-shop"></i>
-
-                        Convenience Stores
-
-                    </div>
-
-
-                    <div
-                        id="convenienceList"
-                        class="landmark-list"
-                    ></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="right-column">
-
-            <div class="owner-card">
-
-
-                <div class="card-title">
-
-                    Property Owner
-
-                </div>
-
-
-                <div class="owner-box">
-
-
-                    <div class="owner-icon">
-
-                        O
-
-                    </div>
-
-
-                    <div>
-
-
-                        <div class="owner-name">
-
-                            @if($accommodation->owner)
-
-                                {{ $accommodation->owner->name }}
-
-                            @else
-
-                                Owner
-
-                            @endif
-
+                        <!-- PROPERTY DESCRIPTION ONLY -->
+
+                        <div class="property-information">
+                            <div class="property-description">
+                                <strong>Description:</strong><br>
+                                {{ $accommodation->description ?: 'No description available.' }}
+                            </div>
                         </div>
 
+                        <!-- ROOM TILES -->
 
-                        <div class="owner-type">
+                        <section class="rooms-section">
 
+                            <div class="rooms-heading">
+
+                                <h2>
+                                    <i class="bi bi-door-open"></i>
+                                    Rooms
+                                </h2>
+
+                                <span class="room-count">
+                                    {{ $rooms->count() }} Rooms
+                                </span>
+
+                            </div>
+
+                            <div class="rooms-grid">
+
+                                @forelse($rooms as $room)
+
+                                    <div class="room-card">
+
+                                        <div class="room-header">
+
+                                            <h3 class="room-name">
+                                                {{ $room->room_name ?? 'Room' }}
+                                            </h3>
+
+                                            <span class="room-status
+                                                {{ strtolower($room->status ?? '') === 'available' ? 'available' : 'occupied' }}">
+                                                {{ $room->status ?? 'Unavailable' }}
+                                            </span>
+
+                                        </div>
+
+                                        <div class="room-price">
+                                            ₱{{ number_format((float) $room->price, 2) }}
+                                            <small>/ month</small>
+                                        </div>
+
+                                        <div class="room-details">
+
+                                            <p>
+                                                <i class="bi bi-people"></i>
+                                                <strong>Capacity:</strong>
+                                                {{ $room->capacity ?? 1 }} person(s)
+                                            </p>
+
+                                            <p>
+                                                <i class="bi bi-droplet"></i>
+                                                <strong>Bathrooms:</strong>
+                                                {{ $room->bathrooms ?? 0 }}
+                                            </p>
+
+                                        </div>
+
+                                        @if($room->description)
+
+                                            <div class="room-description">
+                                                <strong>Description:</strong><br>
+                                                {{ $room->description }}
+                                            </div>
+
+                                        @endif
+
+                                        <div class="room-amenities">
+
+                                            <strong>
+                                                <i class="bi bi-check-circle"></i>
+                                                Amenities:
+                                            </strong>
+
+                                            @if(is_array($room->amenities))
+                                                {{ implode(', ', $room->amenities) ?: 'None' }}
+                                            @elseif(is_string($room->amenities))
+                                                {{ $room->amenities ?: 'None' }}
+                                            @else
+                                                None
+                                            @endif
+
+                                        </div>
+
+                                    </div>
+
+                                @empty
+
+                                    <div class="empty-rooms">
+                                        <i class="bi bi-door-closed"
+                                           style="font-size: 30px;"></i>
+
+                                        <p>
+                                            No rooms have been added to this property yet.
+                                        </p>
+                                    </div>
+
+                                @endforelse
+
+                            </div>
+
+                        </section>
+
+                        <!-- LOCATION MAP -->
+
+                        <h2 class="section-title">
+                            <i class="bi bi-geo-alt"></i>
+                            Location Map
+                        </h2>
+
+                        @if($accommodation->latitude !== null && $accommodation->longitude !== null)
+
+                            <div id="map"></div>
+
+                        @else
+
+                            <div class="empty-rooms">
+                                <i class="bi bi-map"></i>
+                                <p>Location coordinates are not available.</p>
+                            </div>
+
+                        @endif
+
+                    </div>
+
+                </div>
+
+                <!-- RIGHT COLUMN -->
+
+                <div>
+
+                    <!-- PROPERTY OWNER -->
+
+                    <div class="side-card">
+
+                        <h3 class="side-title">
                             Property Owner
+                        </h3>
+
+                        <div class="owner-profile">
+
+                            <div class="owner-avatar">
+                                O
+                            </div>
+
+                            <div>
+                                <div class="owner-name">
+                                    Owner
+                                </div>
+
+                                <div class="owner-label">
+                                    Property Owner
+                                </div>
+                            </div>
 
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="inquiry-card">
-
-
-                <div class="card-title">
-
-                    Send Inquiry
-
-                </div>
-
-
-                <form
-                    action="{{ route('student.inquiry.store', $accommodation->id) }}"
-                    method="POST"
-                >
-
-                    @csrf
-
-
-                    <div class="inquiry-label">
-
-                        Message
 
                     </div>
 
+                    <!-- SEND INQUIRY -->
 
-                    <textarea
-                        name="message"
-                        class="inquiry-textarea"
-                        placeholder="Hi, I'm interested in this property..."
-                        required
-                    ></textarea>
+                    <div class="side-card">
 
+                        <h3 class="side-title">
+                            Send Inquiry
+                        </h3>
 
-                    <button
-                        type="submit"
-                        class="send-btn"
-                    >
+                        @if(session('success'))
+                            <div class="alert alert-success">
+                                {{ session('success') }}
+                            </div>
+                        @endif
 
-                        ✈ Send Inquiry
+                        @if(session('error'))
+                            <div class="alert alert-error">
+                                {{ session('error') }}
+                            </div>
+                        @endif
 
-                    </button>
+                        @if($errors->any())
 
+                            <div class="alert alert-error">
+                                @foreach($errors->all() as $error)
+                                    <div>{{ $error }}</div>
+                                @endforeach
+                            </div>
 
-                </form>
+                        @endif
+
+                        <form
+                            action="{{ route('student.inquiry.store', $accommodation->id) }}"
+                            method="POST"
+                        >
+
+                            @csrf
+
+                            <label for="message" class="form-label">
+                                Message
+                            </label>
+
+                            <textarea
+                                name="message"
+                                id="message"
+                                placeholder="Hi, I'm interested in this property..."
+                                required>{{ old('message') }}</textarea>
+
+                            <button type="submit" class="send-button">
+                                <i class="bi bi-send-fill"></i>
+                                Send Inquiry
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
 
             </div>
-        </div>
+
+        </main>
+
     </div>
-</div>
 
-<script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-></script>
+    <!-- MAP SCRIPT -->
 
+    @if($accommodation->latitude !== null && $accommodation->longitude !== null)
 
-<script>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-const latitude =
-    {{ $accommodation->latitude ?? 6.1164 }};
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
 
-const longitude =
-    {{ $accommodation->longitude ?? 125.1716 }};
+                const latitude = Number(@json($accommodation->latitude));
+                const longitude = Number(@json($accommodation->longitude));
 
-const map =
-    L.map('map').setView(
+                if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+                    return;
+                }
 
-        [
-            latitude,
-            longitude
-        ],
-
-        17
-
-    );
-
-L.tileLayer(
-
-    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-
-    {
-
-        maxZoom: 19,
-
-        attribution:
-            '&copy; OpenStreetMap contributors'
-
-    }
-
-).addTo(map);
-
-const propertyMarker =
-    L.marker(
-
-        [
-            latitude,
-            longitude
-        ]
-
-    ).addTo(map);
-
-propertyMarker.bindPopup(
-
-    `<strong>
-        {{ $accommodation->name }}
-    </strong>
-
-    <br>
-
-    {{ $accommodation->address }}`
-
-).openPopup();
-
-function escapeHtml(text) {
-
-    const div =
-        document.createElement('div');
-
-    div.textContent =
-        text;
-
-    return div.innerHTML;
-
-}
-
-function calculateDistance(
-
-    latitude1,
-    longitude1,
-    latitude2,
-    longitude2
-
-) {
-
-    const earthRadius =
-        6371000;
-
-
-    const lat1 =
-        latitude1 * Math.PI / 180;
-
-
-    const lat2 =
-        latitude2 * Math.PI / 180;
-
-
-    const differenceLatitude =
-        (latitude2 - latitude1)
-        * Math.PI / 180;
-
-
-    const differenceLongitude =
-        (longitude2 - longitude1)
-        * Math.PI / 180;
-
-
-    const a =
-
-        Math.sin(
-            differenceLatitude / 2
-        ) ** 2
-
-        +
-
-        Math.cos(lat1) *
-        Math.cos(lat2) *
-
-        Math.sin(
-            differenceLongitude / 2
-        ) ** 2;
-
-
-    const c =
-        2 *
-
-        Math.atan2(
-
-            Math.sqrt(a),
-
-            Math.sqrt(1 - a)
-
-        );
-
-
-    return earthRadius * c;
-
-}
-
-function formatDistance(distance) {
-
-    if (distance < 1000) {
-
-        return Math.round(distance) + ' m';
-
-    }
-
-
-    return (
-        distance / 1000
-    ).toFixed(1) + ' km';
-
-}
-
-function getCoordinates(element) {
-
-    if (
-
-        typeof element.lat === 'number' &&
-
-        typeof element.lon === 'number'
-
-    ) {
-
-        return {
-
-            latitude:
-                element.lat,
-
-            longitude:
-                element.lon
-
-        };
-
-    }
-
-
-    if (
-
-        element.center &&
-
-        typeof element.center.lat === 'number' &&
-
-        typeof element.center.lon === 'number'
-
-    ) {
-
-        return {
-
-            latitude:
-                element.center.lat,
-
-            longitude:
-                element.center.lon
-
-        };
-
-    }
-
-
-    return null;
-
-}
-
-function getLandmarkCategory(tags) {
-
-    const amenity =
-        tags.amenity || '';
-
-    const shop =
-        tags.shop || '';
-
-    const education =
-        tags.education || '';
-
-    if (
-
-        amenity === 'school' ||
-
-        amenity === 'college' ||
-
-        amenity === 'university' ||
-
-        education === 'school' ||
-
-        education === 'university' ||
-
-        education === 'college'
-
-    ) {
-
-        return 'school';
-
-    }
-
-    if (
-
-        shop === 'mall'
-
-    ) {
-
-        return 'mall';
-
-    }
-
-    if (
-
-        amenity === 'bank' ||
-
-        amenity === 'atm'
-
-    ) {
-
-        return 'bank';
-
-    }
-
-    if (
-
-        shop === 'convenience'
-
-    ) {
-
-        return 'convenience';
-
-    }
-
-
-    return null;
-
-}
-
-function getCategoryInfo(category) {
-
-    if (category === 'school') {
-
-        return {
-
-            listId: 'schoolList',
-
-            categoryId: 'schoolCategory',
-
-            icon: 'bi-mortarboard-fill',
-
-            type: 'School / University'
-
-        };
-
-    }
-
-
-    if (category === 'mall') {
-
-        return {
-
-            listId: 'mallList',
-
-            categoryId: 'mallCategory',
-
-            icon: 'bi-bag-fill',
-
-            type: 'Mall / Shopping'
-
-        };
-
-    }
-
-
-    if (category === 'bank') {
-
-        return {
-
-            listId: 'bankList',
-
-            categoryId: 'bankCategory',
-
-            icon: 'bi-bank2',
-
-            type: 'Bank / ATM'
-
-        };
-
-    }
-
-
-    if (category === 'convenience') {
-
-        return {
-
-            listId: 'convenienceList',
-
-            categoryId: 'convenienceCategory',
-
-            icon: 'bi-shop',
-
-            type: 'Convenience Store'
-
-        };
-
-    }
-
-
-    return null;
-
-}
-
-function createLandmarkItem(landmark, category) {
-
-    const info =
-        getCategoryInfo(category);
-
-
-    const item =
-        document.createElement('div');
-
-
-    item.className =
-        'landmark-item';
-
-
-    item.innerHTML =
-
-        '<div class="landmark-icon">' +
-
-            '<i class="bi ' +
-            info.icon +
-            '"></i>' +
-
-        '</div>' +
-
-        '<div class="landmark-info">' +
-
-            '<div class="landmark-name">' +
-
-                escapeHtml(
-                    landmark.name
-                ) +
-
-            '</div>' +
-
-            '<div class="landmark-type">' +
-
-                escapeHtml(
-                    info.type
-                ) +
-
-            '</div>' +
-
-            '<div class="landmark-distance">' +
-
-                '<i class="bi bi-signpost-2"></i> ' +
-
-                formatDistance(
-                    landmark.distance
-                ) +
-
-            '</div>' +
-
-        '</div>';
-
-
-    return item;
-
-}
-
-function displayCategory(
-    category,
-    landmarks
-) {
-
-    const info =
-        getCategoryInfo(category);
-
-
-    const categoryElement =
-        document.getElementById(
-            info.categoryId
-        );
-
-
-    const list =
-        document.getElementById(
-            info.listId
-        );
-
-
-    list.innerHTML =
-        '';
-
-    if (
-        !landmarks ||
-        landmarks.length === 0
-    ) {
-
-        categoryElement.style.display =
-            'block';
-
-
-        const empty =
-            document.createElement('div');
-
-
-        empty.className =
-            'category-empty';
-
-
-        empty.innerHTML =
-            '<i class="bi bi-info-circle"></i> ' +
-            'No mapped places found within 1 km.';
-
-
-        list.appendChild(
-            empty
-        );
-
-
-        return;
-
-    }
-
-    categoryElement.style.display =
-        'block';
-
-    landmarks.sort(
-
-        function(a, b) {
-
-            return (
-                a.distance -
-                b.distance
-            );
-
-        }
-
-    );
-
-    const seen =
-        new Set();
-
-
-    const unique =
-        [];
-
-
-    landmarks.forEach(
-
-        function(landmark) {
-
-            const key =
-                landmark.name
-                    .toLowerCase()
-                    .trim();
-
-
-            if (
-                seen.has(key)
-            ) {
-
-                return;
-
-            }
-
-
-            seen.add(key);
-
-            unique.push(
-                landmark
-            );
-
-        }
-
-    );
-
-    unique
-        .slice(0, 5)
-        .forEach(
-
-            function(landmark) {
-
-                const item =
-                    createLandmarkItem(
-                        landmark,
-                        category
-                    );
-
-
-                list.appendChild(
-                    item
+                const map = L.map('map').setView(
+                    [latitude, longitude],
+                    17
                 );
 
-            }
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors',
+                    maxZoom: 19
+                }).addTo(map);
+
+                L.marker([latitude, longitude])
+                    .addTo(map)
+                    .bindPopup(
+                        @json($accommodation->name . ' - ' . $accommodation->address)
+                    )
+                    .openPopup();
+
+            });
+        </script>
+
+    @endif
 
-        );
-
-}
-
-async function searchNearbyLandmarks() {
-
-
-    const loading =
-        document.getElementById(
-            'landmarkLoading'
-        );
-
-
-    const message =
-        document.getElementById(
-            'landmarkMessage'
-        );
-
-
-    loading.style.display =
-        'block';
-
-
-    message.style.display =
-        'none';
-
-    const query = `
-
-        [out:json][timeout:25];
-
-        (
-
-            /* SCHOOLS */
-
-            nwr(
-                around:1000,
-                ${latitude},
-                ${longitude}
-            )["name"]["amenity"="school"];
-
-            nwr(
-                around:1000,
-                ${latitude},
-                ${longitude}
-            )["name"]["amenity"="college"];
-
-            nwr(
-                around:1000,
-                ${latitude},
-                ${longitude}
-            )["name"]["amenity"="university"];
-
-            nwr(
-                around:1000,
-                ${latitude},
-                ${longitude}
-            )["name"]["education"];
-
-
-            /* MALLS */
-
-            nwr(
-                around:1000,
-                ${latitude},
-                ${longitude}
-            )["name"]["shop"="mall"];
-
-
-            /* BANKS */
-
-            nwr(
-                around:1000,
-                ${latitude},
-                ${longitude}
-            )["name"]["amenity"="bank"];
-
-            nwr(
-                around:1000,
-                ${latitude},
-                ${longitude}
-            )["name"]["amenity"="atm"];
-
-
-            /* CONVENIENCE STORES */
-
-            nwr(
-                around:1000,
-                ${latitude},
-                ${longitude}
-            )["name"]["shop"="convenience"];
-
-        );
-
-        out center tags;
-
-    `;
-
-
-    try {
-
-
-        const response =
-            await fetch(
-
-                'https://overpass-api.de/api/interpreter',
-
-                {
-
-                    method: 'POST',
-
-                    headers: {
-
-                        'Content-Type':
-                            'application/x-www-form-urlencoded; charset=UTF-8'
-
-                    },
-
-                    body:
-                        'data=' +
-                        encodeURIComponent(
-                            query
-                        )
-
-                }
-
-            );
-
-
-        if (
-            !response.ok
-        ) {
-
-            throw new Error(
-                'Landmark request failed.'
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        const elements =
-            data.elements || [];
-
-        const categories = {
-
-            school: [],
-
-            mall: [],
-
-            bank: [],
-
-            convenience: []
-
-        };
-
-        elements.forEach(
-
-            function(element) {
-
-
-                const coordinates =
-                    getCoordinates(
-                        element
-                    );
-
-
-                if (!coordinates) {
-
-                    return;
-
-                }
-
-
-                const tags =
-                    element.tags || {};
-
-
-                const name =
-                    tags.name ||
-                    '';
-
-
-                if (!name) {
-
-                    return;
-
-                }
-
-
-                const category =
-                    getLandmarkCategory(
-                        tags
-                    );
-
-
-                if (!category) {
-
-                    return;
-
-                }
-
-
-                const distance =
-                    calculateDistance(
-
-                        latitude,
-
-                        longitude,
-
-                        coordinates.latitude,
-
-                        coordinates.longitude
-
-                    );
-
-
-                categories[category].push({
-
-                    name:
-                        name,
-
-                    distance:
-                        distance,
-
-                    tags:
-                        tags
-
-                });
-
-            }
-
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | DISPLAY FOUR CATEGORIES
-        |--------------------------------------------------------------------------
-        */
-
-        displayCategory(
-            'school',
-            categories.school
-        );
-
-
-        displayCategory(
-            'mall',
-            categories.mall
-        );
-
-
-        displayCategory(
-            'bank',
-            categories.bank
-        );
-
-
-        displayCategory(
-            'convenience',
-            categories.convenience
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CHECK IF ANY RESULT EXISTS
-        |--------------------------------------------------------------------------
-        */
-
-        const totalResults =
-
-            categories.school.length +
-
-            categories.mall.length +
-
-            categories.bank.length +
-
-            categories.convenience.length;
-
-
-        if (
-            totalResults === 0
-        ) {
-
-            message.style.display =
-                'block';
-
-
-            message.innerHTML =
-
-                '<i class="bi bi-info-circle"></i> ' +
-
-                'No mapped schools, malls, banks, ' +
-
-                'or convenience stores were found ' +
-
-                'within 1 kilometer of this property.';
-
-        }
-
-
-    } catch (error) {
-
-
-        console.error(
-            'Nearby landmarks error:',
-            error
-        );
-
-
-        message.style.display =
-            'block';
-
-
-        message.innerHTML =
-
-            '<i class="bi bi-exclamation-circle"></i> ' +
-
-            'Nearby landmarks could not be loaded. ' +
-
-            'Please try again later.';
-
-    }
-
-
-    loading.style.display =
-        'none';
-
-}
-
-
-/* =========================================================
-   FIX MAP SIZE
-========================================================= */
-
-setTimeout(
-
-    function() {
-
-        map.invalidateSize();
-
-    },
-
-    300
-
-);
-
-searchNearbyLandmarks();
-</script>
 </body>
 </html>

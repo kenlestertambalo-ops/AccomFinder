@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Room;
 
 class Accommodation extends Model
 {
+    protected $table = 'accommodations';
+
     protected $fillable = [
         'owner_id',
         'name',
@@ -31,4 +34,15 @@ class Accommodation extends Model
         'latitude' => 'decimal:7',
         'longitude' => 'decimal:7',
     ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Accommodation Rooms Relationship
+    |--------------------------------------------------------------------------
+    */
+
+    public function roomRecords()
+    {
+        return $this->hasMany(Room::class, 'accommodation_id');
+    }
 }

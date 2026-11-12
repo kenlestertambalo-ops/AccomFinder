@@ -5,10 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Accommodation;
 use App\Models\SavedProperty;
+use App\Models\Room;
 use Illuminate\Support\Facades\Storage;
 
 class AccommodationController extends Controller
 {
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE ACCOMMODATION
+    |--------------------------------------------------------------------------
+    */
+
     public function create()
     {
         if (!session('owner_id')) {
@@ -19,6 +26,13 @@ class AccommodationController extends Controller
 
         return view('owner.create-listing');
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | STORE ACCOMMODATION
+    |--------------------------------------------------------------------------
+    */
 
     public function store(Request $request)
     {
@@ -33,14 +47,8 @@ class AccommodationController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'location' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
             'type' => 'required|string|max:100',
-            'bedrooms' => 'required|integer|min:0',
-            'bathrooms' => 'required|integer|min:0',
-            'capacity' => 'required|integer|min:1',
             'description' => 'nullable|string',
-            'amenities' => 'nullable|array',
-            'amenities.*' => 'string|max:100',
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
             'image' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
@@ -50,49 +58,69 @@ class AccommodationController extends Controller
             ->store('accommodations', 'public');
 
         try {
-            Accommodation::create([
+
+            $accommodation = Accommodation::create([
                 'owner_id' => $ownerId,
+
                 'name' => $validated['title'],
                 'address' => $validated['location'],
-                'price' => $validated['price'],
                 'type' => $validated['type'],
-                'bedrooms' => $validated['bedrooms'],
-                'bathrooms' => $validated['bathrooms'],
-                'capacity' => $validated['capacity'],
+
                 'description' => $validated['description'] ?? null,
-                'amenities' => $validated['amenities'] ?? [],
-                'status' => $request->boolean('available')
-                    ? 'Available'
-                    : 'Unavailable',
+
+                // Room-specific information is stored in the rooms table.
+                'price' => 0,
+                'bedrooms' => 0,
+                'bathrooms' => 0,
+                'capacity' => 1,
+                'amenities' => [],
+
+                // Property becomes available after rooms are added.
+                'status' => 'Unavailable',
+
                 'latitude' => $validated['latitude'],
                 'longitude' => $validated['longitude'],
+
                 'image' => $imagePath,
             ]);
+
         } catch (\Throwable $e) {
+
             Storage::disk('public')->delete($imagePath);
 
             throw $e;
         }
 
         return redirect()
-            ->route('owner.listings')
+            ->route('owner.rooms.create', $accommodation->id)
             ->with(
                 'success',
-                'New listing created successfully and is now visible to students!'
+                'Property created successfully! You can now add rooms.'
             );
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | STUDENT DASHBOARD
+    |--------------------------------------------------------------------------
+    */
 
     public function studentDashboard()
     {
         $studentId = session('student_id');
 
+        // Load available properties and their associated rooms.
         $approvedListings = Accommodation::where('status', 'Available')
+            ->with('roomRecords')
             ->latest()
             ->get();
 
+        // Count available properties.
         $availableListings = Accommodation::where('status', 'Available')
             ->count();
 
+        // Count saved properties.
         $savedPropertiesCount = 0;
 
         if ($studentId) {
@@ -102,6 +130,7 @@ class AccommodationController extends Controller
             )->count();
         }
 
+        // Count available property locations.
         $locations = Accommodation::where('status', 'Available')
             ->whereNotNull('address')
             ->where('address', '!=', '')
@@ -119,22 +148,48 @@ class AccommodationController extends Controller
         );
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | STUDENT ACCOMMODATION LISTINGS
+    |--------------------------------------------------------------------------
+    */
+
     public function studentListings()
     {
         $accommodations = Accommodation::where('status', 'Available')
+            ->with('roomRecords')
             ->latest()
             ->get();
 
-        return view('student.search', compact('accommodations'));
+        return view(
+            'student.search',
+            compact('accommodations')
+        );
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | STUDENT ACCOMMODATION DETAILS
+    |--------------------------------------------------------------------------
+    */
 
     public function show($id)
     {
-        $accommodation = Accommodation::findOrFail($id);
+        // Find the selected property and load its rooms.
+        $accommodation = Accommodation::with('roomRecords')
+            ->findOrFail($id);
+
+        // Pass the room collection to the details Blade file.
+        $rooms = $accommodation->roomRecords;
 
         return view(
             'student.accommodation-details',
-            compact('accommodation')
+            compact(
+                'accommodation',
+                'rooms'
+            )
         );
     }
 }

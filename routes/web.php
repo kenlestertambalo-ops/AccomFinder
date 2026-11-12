@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StudentRegisterController;
 use App\Http\Controllers\OwnerController;
@@ -9,6 +11,10 @@ use App\Http\Controllers\AccommodationController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\SavedPropertyController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\RoomController;
+use App\Http\Controllers\ReportController;
+
+use App\Models\Accommodation;
 
 
 /*
@@ -108,6 +114,7 @@ Route::get('/student/dashboard', [
 ])->name('student.dashboard');
 
 Route::get('/student/logout', function () {
+
     session()->forget([
         'student_id',
         'student_name',
@@ -118,6 +125,7 @@ Route::get('/student/logout', function () {
     return redirect()
         ->route('student.login')
         ->with('success', 'You have been logged out.');
+
 })->name('student.logout');
 
 
@@ -127,51 +135,147 @@ Route::get('/student/logout', function () {
 |--------------------------------------------------------------------------
 */
 
-Route::get('/student/search', function (\Illuminate\Http\Request $request) {
+Route::get('/student/search', function (Request $request) {
 
-    $query = \App\Models\Accommodation::query();
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD ACCOMMODATIONS AND THEIR ROOMS
+    |--------------------------------------------------------------------------
+    |
+    | Use roomRecords instead of rooms to avoid conflict with
+    | an existing accommodations table column named rooms.
+    |
+    */
 
-    // Search by accommodation name or address
+    $query = Accommodation::with([
+        'roomRecords' => function ($roomQuery) {
+            $roomQuery->orderBy('id', 'asc');
+        }
+    ]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SEARCH BY PROPERTY NAME OR ADDRESS
+    |--------------------------------------------------------------------------
+    */
+
     if ($request->filled('search')) {
+
         $search = trim($request->input('search'));
 
         $query->where(function ($q) use ($search) {
+
             $q->where('name', 'LIKE', '%' . $search . '%')
               ->orWhere('address', 'LIKE', '%' . $search . '%');
+
         });
+
     }
 
-    // Filter by price
-    if ($request->filled('price')) {
-        switch ($request->input('price')) {
 
-            case 'Below 2000':
-                $query->where('price', '<', 2000);
-                break;
+    /*
+    |--------------------------------------------------------------------------
+    | FILTER BY PROPERTY TYPE
+    |--------------------------------------------------------------------------
+    */
 
-            case '2000-5000':
-                $query->whereBetween('price', [2000, 5000]);
-                break;
-
-            case 'Above 5000':
-                $query->where('price', '>', 5000);
-                break;
-        }
-    }
-
-    // Filter by accommodation type
     if (
         $request->filled('type') &&
         $request->input('type') !== 'All Types'
     ) {
-        $query->where('type', $request->input('type'));
+
+        $query->where(
+            'type',
+            $request->input('type')
+        );
+
     }
 
-    // No approval status required.
-    // Show only accommodations marked Available.
-    $query->where('status', 'Available');
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILTER BY ROOM PRICE
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('price')) {
+
+        $priceFilter = $request->input('price');
+
+        $query->whereHas('roomRecords', function ($roomQuery) use ($priceFilter) {
+
+            switch ($priceFilter) {
+
+                case 'Below 2000':
+
+                    $roomQuery->where('price', '<', 2000);
+
+                    break;
+
+                case '2000-5000':
+
+                    $roomQuery->whereBetween('price', [2000, 5000]);
+
+                    break;
+
+                case 'Above 5000':
+
+                    $roomQuery->where('price', '>', 5000);
+
+                    break;
+
+            }
+
+        });
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILTER BY ROOM AVAILABILITY
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->input('availability') === 'Available') {
+
+        // Properties with at least one available room.
+
+        $query->whereHas('roomRecords', function ($roomQuery) {
+
+            $roomQuery->where('status', 'Available');
+
+        });
+
+    } elseif ($request->input('availability') === 'Occupied') {
+
+        // Properties with rooms but no available rooms.
+
+        $query->whereHas('roomRecords')
+              ->whereDoesntHave('roomRecords', function ($roomQuery) {
+
+                  $roomQuery->where('status', 'Available');
+
+              });
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | GET ACCOMMODATIONS
+    |--------------------------------------------------------------------------
+    */
 
     $listings = $query->latest()->get();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RETURN SEARCH PAGE
+    |--------------------------------------------------------------------------
+    */
 
     return view('student.search', compact('listings'));
 
@@ -322,6 +426,7 @@ Route::post('/owner/reset-password', [
 */
 
 Route::get('/owner/logout', function () {
+
     session()->forget([
         'owner_id',
         'owner_name',
@@ -331,6 +436,7 @@ Route::get('/owner/logout', function () {
     return redirect()
         ->route('owner.login')
         ->with('success', 'You have been logged out.');
+
 })->name('owner.logout');
 
 
@@ -381,6 +487,27 @@ Route::delete('/owner/listings/{id}', [
     OwnerController::class,
     'deleteListing'
 ])->name('owner.listings.delete');
+
+
+/*
+|--------------------------------------------------------------------------
+| OWNER ROOM MANAGEMENT
+|--------------------------------------------------------------------------
+*/
+
+// Display the room creation page.
+
+Route::get('/owner/listings/{accommodation}/rooms/create', [
+    RoomController::class,
+    'create'
+])->name('owner.rooms.create');
+
+// Save a new room under the selected property.
+
+Route::post('/owner/listings/{accommodation}/rooms', [
+    RoomController::class,
+    'store'
+])->name('owner.rooms.store');
 
 
 /*
@@ -475,17 +602,46 @@ Route::post('/owner/messages/{id}/reply', [
     'reply'
 ])->name('owner.messages.reply');
 
+
+/*
+|--------------------------------------------------------------------------
+| SESSION TEST
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/session-test', function () {
+
     $file = null;
     $line = null;
 
     return response()->json([
+
         'headers_already_sent' => headers_sent($file, $line),
+
         'output_file' => $file,
+
         'output_line' => $line,
+
         'session_started' => request()->hasSession()
             ? request()->session()->isStarted()
             : false,
+
         'session_driver' => config('session.driver'),
+
     ]);
+
 });
+// UPDATE ROOM
+Route::put(
+    '/owner/listings/{accommodation}/rooms/{room}',
+    [RoomController::class, 'update']
+)->name('owner.rooms.update');
+
+// DELETE ROOM
+Route::delete(
+    '/owner/listings/{accommodation}/rooms/{room}',
+    [RoomController::class, 'destroy']
+)->name('owner.rooms.delete');
+
+Route::get('/owner/reports', [ReportController::class, 'index'])
+    ->name('owner.reports');

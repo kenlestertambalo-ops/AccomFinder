@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -220,7 +219,7 @@
         .tenant-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 1100px;
+            min-width: 1150px;
         }
 
         .tenant-table th {
@@ -262,6 +261,12 @@
 
         .rent {
             color: #14945f;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .due-day {
+            color: #17395f;
             font-weight: 600;
             white-space: nowrap;
         }
@@ -395,6 +400,13 @@
             box-shadow: 0 0 0 3px rgba(20,148,95,.10);
         }
 
+        .field-help {
+            display: block;
+            margin-top: 6px;
+            color: #718096;
+            font-size: 12px;
+        }
+
         .cancel-btn {
             background: #fff;
             border: 1px solid #d6e0eb;
@@ -436,6 +448,7 @@
         }
 
         @media (max-width: 650px) {
+            body { overflow: auto; }
             .sidebar { display: none; }
 
             .content {
@@ -556,6 +569,7 @@
                         <th>Move-in Date</th>
                         <th>End Date</th>
                         <th>Monthly Rent</th>
+                        <th>Due Day</th>
                         <th>Status</th>
                         <th>Contact</th>
                         <th>Actions</th>
@@ -593,6 +607,13 @@
                                     ₱{{ number_format((float) $tenant->monthly_rent, 2) }}
                                 </span>
                             </td>
+
+                            <<td>
+    <span class="due-day">
+        {{ $tenant->due_day ?? 5 }}
+    </span>
+    of every month
+</td>
 
                             <td>
                                 @if($tenant->status === 'Active')
@@ -634,6 +655,7 @@
                                         data-start-date="{{ $tenant->start_date ? \Carbon\Carbon::parse($tenant->start_date)->format('Y-m-d') : '' }}"
                                         data-end-date="{{ $tenant->end_date ? \Carbon\Carbon::parse($tenant->end_date)->format('Y-m-d') : '' }}"
                                         data-monthly-rent="{{ $tenant->monthly_rent }}"
+                                        data-due-day="{{ $tenant->due_day ?? 5 }}"
                                         data-status="{{ $tenant->status }}"
                                     >
                                         <i class="bi bi-pencil"></i>
@@ -661,7 +683,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="empty-state">
+                            <td colspan="9" class="empty-state">
                                 <i class="bi bi-people"></i>
                                 <h4>No Tenants Yet</h4>
                                 <p>Add your first tenant to get started.</p>
@@ -737,6 +759,20 @@
                         </div>
 
                         <div class="col-md-6">
+                            <label class="form-label">Monthly Rent Due Day <span class="required">*</span></label>
+                            <input
+                                type="number"
+                                name="due_day"
+                                class="form-control"
+                                min="1"
+                                max="31"
+                                value="{{ old('due_day', 5) }}"
+                                required
+                            >
+                            <small class="field-help">Choose a day from 1 to 31. Example: 5 means rent is due every 5th.</small>
+                        </div>
+
+                        <div class="col-md-6">
                             <label class="form-label">Status <span class="required">*</span></label>
                             <select name="status" class="form-select" required>
                                 <option value="Active" {{ old('status', 'Active') == 'Active' ? 'selected' : '' }}>Active</option>
@@ -757,7 +793,7 @@
     </div>
 </div>
 
-<!-- EDIT TENANT FLOATING MODAL -->
+<!-- EDIT TENANT MODAL -->
 <div
     class="modal fade"
     id="editTenantModal"
@@ -823,6 +859,20 @@
                         </div>
 
                         <div class="col-md-6">
+                            <label class="form-label">Monthly Rent Due Day <span class="required">*</span></label>
+                            <input
+                                type="number"
+                                name="due_day"
+                                id="edit_due_day"
+                                class="form-control"
+                                min="1"
+                                max="31"
+                                required
+                            >
+                            <small class="field-help">Choose a day from 1 to 31.</small>
+                        </div>
+
+                        <div class="col-md-6">
                             <label class="form-label">Status <span class="required">*</span></label>
                             <select name="status" id="edit_status" class="form-select" required>
                                 <option value="Active">Active</option>
@@ -874,6 +924,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         document.getElementById('edit_monthly_rent').value =
             button.getAttribute('data-monthly-rent') || '';
+
+        document.getElementById('edit_due_day').value =
+            button.getAttribute('data-due-day') || 5;
 
         document.getElementById('edit_status').value =
             button.getAttribute('data-status') || 'Active';

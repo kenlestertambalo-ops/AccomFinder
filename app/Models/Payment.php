@@ -14,39 +14,25 @@ class Payment extends Model
     protected $fillable = [
         'owner_id',
         'tenant_id',
+        'billing_month',
         'amount',
         'payment_date',
         'status',
     ];
 
     protected $casts = [
+        'billing_month' => 'date',
         'amount' => 'decimal:2',
         'payment_date' => 'date',
     ];
 
-
-    // =========================================================
-    // TENANT
-    // =========================================================
-
     public function tenant()
     {
-        return $this->belongsTo(
-            Tenant::class,
-            'tenant_id'
-        );
+        return $this->belongsTo(Tenant::class, 'tenant_id');
     }
-
-
-    // =========================================================
-    // OWNER
-    // =========================================================
 
     public function owner()
     {
-        return $this->belongsTo(
-            Owner::class,
-            'owner_id'
-        );
+        return $this->belongsTo(Owner::class, 'owner_id');
     }
 }

@@ -144,32 +144,24 @@ class OwnerController extends Controller
     */
 
     public function editListing($id)
-    {
-        $ownerId = session('owner_id');
+{
+    $ownerId = session('owner_id');
 
-        if (!$ownerId) {
+    if (!$ownerId) {
+        return redirect()
+            ->route('owner.login')
+            ->with('error', 'Please login as an owner first.');
+    }
 
-            return redirect()
-                ->route('owner.login')
-                ->with(
-                    'error',
-                    'Please login as an owner first.'
-                );
-        }
-
-
-        $listing = Accommodation::where(
-            'owner_id',
-            $ownerId
-        )
+    $listing = Accommodation::where('owner_id', $ownerId)
+        ->with('roomRecords')
         ->findOrFail($id);
 
-
-        return view(
-            'owner.listing-edit',
-            compact('listing')
-        );
-    }
+    return view(
+        'owner.listing-edit',
+        compact('listing')
+    );
+}
 
 
 
@@ -179,99 +171,36 @@ class OwnerController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function updateListing(
-        Request $request,
-        $id
-    ) {
+    public function updateListing(Request $request, $id)
+{
+    $ownerId = session('owner_id');
 
-        $ownerId = session('owner_id');
+    if (!$ownerId) {
+        return redirect()
+            ->route('owner.login')
+            ->with('error', 'Please login as an owner first.');
+    }
 
-        if (!$ownerId) {
-
-            return redirect()
-                ->route('owner.login')
-                ->with(
-                    'error',
-                    'Please login as an owner first.'
-                );
-        }
-
-
-        $listing = Accommodation::where(
-            'owner_id',
-            $ownerId
-        )
+    $listing = Accommodation::where('owner_id', $ownerId)
         ->findOrFail($id);
 
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'address' => 'required|string|max:255',
+        'type' => 'required|string|max:100',
+        'price' => 'required|numeric|min:0',
+        'status' => 'required|in:Available,Full,Unavailable',
+        'description' => 'nullable|string',
+        'latitude' => 'nullable|numeric',
+        'longitude' => 'nullable|numeric',
+    ]);
 
-        $request->validate([
+    $listing->update($validated);
 
-            'name' => [
-                'required',
-                'string',
-                'max:255'
-            ],
-
-            'address' => [
-                'required',
-                'string',
-                'max:255'
-            ],
-
-            'price' => [
-                'required',
-                'numeric'
-            ],
-
-            'status' => [
-                'required',
-                'string'
-            ],
-
-            'description' => [
-                'nullable',
-                'string'
-            ],
-
-            'latitude' => [
-                'nullable',
-                'numeric'
-            ],
-
-            'longitude' => [
-                'nullable',
-                'numeric'
-            ],
-
-        ]);
-
-
-        $listing->update([
-
-            'name' => $request->name,
-
-            'address' => $request->address,
-
-            'price' => $request->price,
-
-            'status' => $request->status,
-
-            'description' => $request->description,
-
-            'latitude' => $request->latitude,
-
-            'longitude' => $request->longitude,
-
-        ]);
-
-
-        return redirect()
-            ->route('owner.listings')
-            ->with(
-                'success',
-                'Listing updated successfully!'
-            );
-    }
+    return redirect()
+        ->route('owner.listings.edit', $listing->id)
+        ->with('success', 'Listing updated successfully!');
+}
 
 
 

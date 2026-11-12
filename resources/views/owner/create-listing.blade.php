@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add New Listing | AccomFinder</title>
+    <title>Create Property | AccomFinder</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
@@ -119,11 +119,13 @@
             .amenity-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .landmark-list { grid-template-columns: 1fr; }
         }
+
         @media (max-width: 850px) {
             .sidebar { width: 220px; }
             .content { left: 220px; }
             .form-row, .form-row.four, .coordinates { grid-template-columns: 1fr; }
         }
+
         @media (max-width: 600px) {
             .sidebar { display: none; }
             .content { left: 0; }
@@ -173,8 +175,8 @@
                 <a href="{{ route('owner.listings') }}" class="back-link">
                     <i class="bi bi-arrow-left"></i> Back to Listings
                 </a>
-                <h1>Add New Listing</h1>
-                <p>Create a new accommodation listing</p>
+                <h1>Create Property</h1>
+                <p>Step 1 of 2: Create your property first, then add individual rooms.</p>
             </div>
         </div>
 
@@ -194,7 +196,6 @@
 
             <h4 class="form-title"><i class="bi bi-building-add"></i>Property Information</h4>
 
-            <!-- enctype is required for image uploads -->
             <form action="{{ route('owner.listings.store') }}"
                   method="POST"
                   id="listingForm"
@@ -215,6 +216,7 @@
                             id="image"
                             class="image-input"
                             accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                            required
                         >
                         <p class="image-help">
                             Accepted formats: JPG, JPEG, PNG, or WEBP. Maximum file size: 2 MB.
@@ -237,46 +239,37 @@
                     </div>
                 </div>
 
-                <!-- PROPERTY TITLE + ADDRESS 1 -->
+                <!-- PROPERTY NAME + COMPLETE ADDRESS -->
                 <div class="form-row">
                     <div class="field">
-                        <label for="title">Property Title</label>
-                        <input type="text" id="title" name="title" value="{{ old('title') }}"
-                               placeholder="Enter property name" required>
+                        <label for="title">Property / Company Name</label>
+                        <input
+                            type="text"
+                            id="title"
+                            name="title"
+                            value="{{ old('title') }}"
+                            placeholder="Enter property or company name"
+                            required
+                        >
                     </div>
 
                     <div class="field">
-                        <label for="address1">Address 1</label>
-                        <input type="text" id="address1" value="{{ old('address1') }}"
-                               autocomplete="street-address" required>
-                    </div>
-                </div>
-
-                <!-- ADDRESS 2 + COMPLETE ADDRESS -->
-                <div class="form-row">
-                    <div class="field">
-                        <label for="address2">Address 2</label>
-                        <input type="text" id="address2" value="{{ old('address2') }}"
-                               autocomplete="address-level2" required>
+                        <label for="location">Complete Address</label>
+                        <input
+                            type="text"
+                            id="location"
+                            name="location"
+                            value="{{ old('location') }}"
+                            placeholder="Enter complete property address"
+                            autocomplete="street-address"
+                            required
+                        >
                         <div id="addressStatus" class="address-status"></div>
                     </div>
-
-                    <div class="field complete-address">
-                        <label for="locationDisplay">Complete Address</label>
-                        <input type="text" id="locationDisplay" value="{{ old('location') }}"
-                               placeholder="Address 1 + Address 2" readonly>
-                        <input type="hidden" name="location" id="location" value="{{ old('location') }}">
-                    </div>
                 </div>
 
-                <!-- PRICE + TYPE -->
+                <!-- PROPERTY TYPE -->
                 <div class="form-row">
-                    <div class="field">
-                        <label for="price">Monthly Rent (₱)</label>
-                        <input type="number" id="price" name="price" value="{{ old('price') }}"
-                               min="0" step="0.01" required>
-                    </div>
-
                     <div class="field">
                         <label for="type">Property Type</label>
                         <select name="type" id="type" required>
@@ -290,54 +283,30 @@
                     </div>
                 </div>
 
-                <!-- ROOMS + CR + CAPACITY -->
-                <div class="form-row four">
-                    <div class="field">
-                        <label for="bedrooms">Rooms</label>
-                        <input type="number" id="bedrooms" name="bedrooms"
-                               value="{{ old('bedrooms', 1) }}" min="0" required>
-                    </div>
-
-                    <div class="field">
-                        <label for="bathrooms">CR</label>
-                        <input type="number" id="bathrooms" name="bathrooms"
-                               value="{{ old('bathrooms', 1) }}" min="0" required>
-                    </div>
-
-                    <div class="field">
-                        <label for="capacity">Capacity</label>
-                        <input type="number" id="capacity" name="capacity"
-                               value="{{ old('capacity', 1) }}" min="1" required>
-                    </div>
-                </div>
+                <p class="image-help" style="margin-bottom:20px;">
+                    Monthly rent, room capacity, bathrooms, and room amenities will be added in Step 2.
+                </p>
 
                 <!-- DESCRIPTION -->
                 <div class="field">
                     <label for="description">Description</label>
-                    <textarea id="description" name="description"
-                              placeholder="Describe your property...">{{ old('description') }}</textarea>
-                </div>
-
-                <!-- AMENITIES -->
-                <div class="amenities-section">
-                    <div class="amenities-title"><i class="bi bi-stars"></i>Amenities</div>
-                    <div class="amenity-grid">
-                        @foreach (['WiFi', 'Parking', 'Furnished', '24/7 Security', 'Shared Kitchen'] as $amenity)
-                            <label class="amenity">
-                                <input type="checkbox" name="amenities[]" value="{{ $amenity }}"
-                                    {{ in_array($amenity, old('amenities', [])) ? 'checked' : '' }}>
-                                {{ $amenity }}
-                            </label>
-                        @endforeach
-                    </div>
+                    <textarea
+                        id="description"
+                        name="description"
+                        placeholder="Describe your property..."
+                    >{{ old('description') }}</textarea>
                 </div>
 
                 <!-- MAP -->
                 <div class="map-section">
-                    <div class="map-title"><i class="bi bi-geo-alt-fill"></i>Property Location on Map</div>
+                    <div class="map-title">
+                        <i class="bi bi-geo-alt-fill"></i>Property Location on Map
+                    </div>
+
                     <p class="map-help">
-                        Enter Address 1 and Address 2. The system will automatically place the property pin on the map.
-                        You can also click or drag the property pin to adjust the exact location.
+                        Navigate around the map and click the exact location of your property to place a pin.
+                        You can drag the marker to adjust its exact position.
+                        The latitude and longitude will automatically update.
                         Nearby landmarks will appear below the map.
                     </p>
 
@@ -345,52 +314,65 @@
 
                     <div class="landmarks-section">
                         <div class="landmarks-header">
-                            <h3 class="landmarks-title"><i class="bi bi-pin-map-fill"></i>Nearby Landmarks</h3>
+                            <h3 class="landmarks-title">
+                                <i class="bi bi-pin-map-fill"></i>Nearby Landmarks
+                            </h3>
                         </div>
+
                         <p class="landmarks-help">
                             Nearby schools, hospitals, banks, stores, restaurants, transport stops and other places around the property.
                         </p>
+
                         <div id="landmarkLoading" class="landmark-loading">
                             <i class="bi bi-arrow-repeat"></i> Searching for nearby landmarks...
                         </div>
+
                         <div id="landmarkMessage" class="landmark-message" style="display:block;">
                             Pin the property on the map to see nearby landmarks.
                         </div>
+
                         <div id="landmarkList" class="landmark-list"></div>
                     </div>
 
                     <div class="coordinates">
                         <div class="field">
                             <label for="latitude">Latitude</label>
-                            <input type="text" name="latitude" id="latitude" class="coordinate-input"
-                                   value="{{ old('latitude') }}" readonly required>
+                            <input
+                                type="text"
+                                name="latitude"
+                                id="latitude"
+                                class="coordinate-input"
+                                value="{{ old('latitude') }}"
+                                readonly
+                                required
+                            >
                         </div>
+
                         <div class="field">
                             <label for="longitude">Longitude</label>
-                            <input type="text" name="longitude" id="longitude" class="coordinate-input"
-                                   value="{{ old('longitude') }}" readonly required>
+                            <input
+                                type="text"
+                                name="longitude"
+                                id="longitude"
+                                class="coordinate-input"
+                                value="{{ old('longitude') }}"
+                                readonly
+                                required
+                            >
                         </div>
                     </div>
 
                     <div id="mapWarning" class="map-warning">
-                        Please enter a complete address or select a location on the map before creating the listing.
+                        Please select the exact property location on the map before saving the property.
                     </div>
-                </div>
-
-                <!-- AVAILABLE -->
-                <div class="available">
-                    <label>
-                        <input type="checkbox" name="available" value="1"
-                            {{ old('available', '1') ? 'checked' : '' }}>
-                        Mark this listing as available
-                    </label>
                 </div>
 
                 <!-- BUTTONS -->
                 <div class="buttons">
                     <button type="submit" class="create-btn">
-                        <i class="bi bi-plus-lg"></i> Create Listing
+                        <i class="bi bi-plus-lg"></i> Save Property &amp; Add Rooms
                     </button>
+
                     <a href="{{ route('owner.listings') }}" class="cancel-btn">
                         <i class="bi bi-x-circle"></i> Cancel
                     </a>
@@ -404,13 +386,11 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
     const defaultLatitude = 6.1164;
     const defaultLongitude = 125.1716;
 
-    const address1Input = document.getElementById('address1');
-    const address2Input = document.getElementById('address2');
     const locationInput = document.getElementById('location');
-    const locationDisplay = document.getElementById('locationDisplay');
     const latitudeInput = document.getElementById('latitude');
     const longitudeInput = document.getElementById('longitude');
     const mapElement = document.getElementById('map');
@@ -425,6 +405,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const imagePreview = document.getElementById('imagePreview');
     const imagePreviewContainer = document.getElementById('imagePreviewContainer');
     const removeImageBtn = document.getElementById('removeImageBtn');
+
     let previewObjectUrl = null;
 
     imageInput.addEventListener('change', function () {
@@ -495,34 +476,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }).addTo(map);
 
     let marker = null;
-    let addressSearchTimer = null;
     let landmarkRequestNumber = 0;
-
-    function getCompleteAddress() {
-        const address1 = address1Input.value.trim();
-        const address2 = address2Input.value.trim();
-
-        if (!address1 && !address2) return '';
-        if (!address1) return address2;
-        if (!address2) return address1;
-
-        return address1 + ', ' + address2;
-    }
-
-    function updateLocationInput() {
-        const completeAddress = getCompleteAddress();
-        locationInput.value = completeAddress;
-        locationDisplay.value = completeAddress;
-    }
-
-    function cleanStreetName(address) {
-        return address
-            .replace(/\bLot\s+[A-Za-z0-9-]+[,]?\s*/gi, '')
-            .replace(/\bBlock\s+[A-Za-z0-9-]+[,]?\s*/gi, '')
-            .replace(/\s*,\s*,/g, ',')
-            .replace(/^\s*,\s*/, '')
-            .trim();
-    }
 
     function showAddressStatus(message, color) {
         addressStatus.style.display = 'block';
@@ -539,14 +493,20 @@ document.addEventListener('DOMContentLoaded', function () {
     function calculateDistance(lat1, lon1, lat2, lon2) {
         const earthRadius = 6371000;
         const radians = Math.PI / 180;
+
         const differenceLatitude = (lat2 - lat1) * radians;
         const differenceLongitude = (lon2 - lon1) * radians;
+
         const a =
             Math.sin(differenceLatitude / 2) ** 2 +
-            Math.cos(lat1 * radians) * Math.cos(lat2 * radians) *
+            Math.cos(lat1 * radians) *
+            Math.cos(lat2 * radians) *
             Math.sin(differenceLongitude / 2) ** 2;
 
-        return earthRadius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return earthRadius * 2 * Math.atan2(
+            Math.sqrt(a),
+            Math.sqrt(1 - a)
+        );
     }
 
     function formatDistance(distance) {
@@ -556,14 +516,25 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function getElementCoordinates(element) {
-        if (typeof element.lat === 'number' && typeof element.lon === 'number') {
-            return { latitude: element.lat, longitude: element.lon };
+        if (
+            typeof element.lat === 'number' &&
+            typeof element.lon === 'number'
+        ) {
+            return {
+                latitude: element.lat,
+                longitude: element.lon
+            };
         }
 
-        if (element.center &&
+        if (
+            element.center &&
             typeof element.center.lat === 'number' &&
-            typeof element.center.lon === 'number') {
-            return { latitude: element.center.lat, longitude: element.center.lon };
+            typeof element.center.lon === 'number'
+        ) {
+            return {
+                latitude: element.center.lat,
+                longitude: element.center.lon
+            };
         }
 
         return null;
@@ -620,8 +591,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const prepared = [];
+
         landmarks.forEach(function (element) {
             const coordinates = getElementCoordinates(element);
+
             if (!coordinates) return;
 
             const tags = element.tags || {};
@@ -648,7 +621,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         prepared.forEach(function (item) {
             const key = item.name.toLowerCase().trim();
+
             if (seen.has(key)) return;
+
             seen.add(key);
             unique.push(item);
         });
@@ -708,19 +683,31 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
 
         try {
-            const response = await fetch('https://overpass-api.de/api/interpreter', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-                body: 'data=' + encodeURIComponent(query)
-            });
+            const response = await fetch(
+                'https://overpass-api.de/api/interpreter',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    body: 'data=' + encodeURIComponent(query)
+                }
+            );
 
-            if (!response.ok) throw new Error('Nearby landmark request failed.');
+            if (!response.ok) {
+                throw new Error('Nearby landmark request failed.');
+            }
 
             const data = await response.json();
 
             if (requestNumber === landmarkRequestNumber) {
-                displayLandmarks(data.elements || [], latitude, longitude);
+                displayLandmarks(
+                    data.elements || [],
+                    latitude,
+                    longitude
+                );
             }
+
         } catch (error) {
             console.error('Nearby landmarks error:', error);
 
@@ -729,6 +716,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 landmarkMessage.innerHTML =
                     '<i class="bi bi-exclamation-circle"></i> Nearby landmarks could not be loaded. You can still create the listing using the property pin.';
             }
+
         } finally {
             if (requestNumber === landmarkRequestNumber) {
                 landmarkLoading.style.display = 'none';
@@ -736,23 +724,33 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    /* CREATE OR UPDATE MARKER */
     function setMarker(latitude, longitude, popupText = '') {
         latitude = parseFloat(latitude);
         longitude = parseFloat(longitude);
 
-        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+            return;
+        }
 
         latitudeInput.value = latitude.toFixed(7);
         longitudeInput.value = longitude.toFixed(7);
 
-        if (marker) map.removeLayer(marker);
+        if (marker) {
+            map.removeLayer(marker);
+        }
 
-        marker = L.marker([latitude, longitude], { draggable: true }).addTo(map);
+        marker = L.marker(
+            [latitude, longitude],
+            { draggable: true }
+        ).addTo(map);
 
         marker.bindPopup(
             popupText ||
             '<strong>Property Location</strong><br>Latitude: ' +
-            latitude.toFixed(7) + '<br>Longitude: ' + longitude.toFixed(7)
+            latitude.toFixed(7) +
+            '<br>Longitude: ' +
+            longitude.toFixed(7)
         );
 
         map.setView([latitude, longitude], 17);
@@ -765,138 +763,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
             latitudeInput.value = position.lat.toFixed(7);
             longitudeInput.value = position.lng.toFixed(7);
+
             mapWarning.style.display = 'none';
 
             marker.bindPopup(
                 '<strong>Property Location</strong><br>Latitude: ' +
-                position.lat.toFixed(7) + '<br>Longitude: ' +
+                position.lat.toFixed(7) +
+                '<br>Longitude: ' +
                 position.lng.toFixed(7)
             );
 
             marker.openPopup();
-            searchNearbyLandmarks(position.lat, position.lng);
-        });
-    }
 
-    function createSearchQueries() {
-        const address1 = cleanStreetName(address1Input.value.trim());
-        const address2 = address2Input.value.trim();
-        const queries = [];
-
-        if (address1 && address2) queries.push(address1 + ', ' + address2);
-        if (address1) queries.push(address1 + ', General Santos City, Philippines');
-        if (address2) queries.push(address2);
-
-        const completeAddress = getCompleteAddress();
-        if (completeAddress) queries.push(completeAddress);
-
-        return [...new Set(queries)];
-    }
-
-    function isGeneralSantosResult(result) {
-        const text = (result.display_name || '').toLowerCase();
-        return text.includes('general santos') || text.includes('gensan') || text.includes('lagao');
-    }
-
-    async function findAddress() {
-        updateLocationInput();
-
-        if (getCompleteAddress().length < 5) return;
-
-        showAddressStatus('<i class="bi bi-search"></i> Searching address...', '#66778c');
-
-        let bestResult = null;
-
-        try {
-            for (const query of createSearchQueries()) {
-                const url =
-                    'https://nominatim.openstreetmap.org/search' +
-                    '?format=jsonv2&addressdetails=1&limit=5&countrycodes=ph&q=' +
-                    encodeURIComponent(query);
-
-                const response = await fetch(url, {
-                    headers: { 'Accept': 'application/json' }
-                });
-
-                if (!response.ok) continue;
-
-                const results = await response.json();
-                if (!results || results.length === 0) continue;
-
-                const localResult = results.find(isGeneralSantosResult);
-                bestResult = localResult || results[0];
-
-                if (localResult) break;
-            }
-
-            if (!bestResult) {
-                showAddressStatus(
-                    '<i class="bi bi-exclamation-circle"></i> Address not found. Please enter a more complete address.',
-                    '#c73535'
-                );
-                return;
-            }
-
-            const latitude = parseFloat(bestResult.lat);
-            const longitude = parseFloat(bestResult.lon);
-
-            if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-                throw new Error('Invalid coordinates.');
-            }
-
-            setMarker(
-                latitude,
-                longitude,
-                '<strong>Property Location</strong><br>' + escapeHtml(bestResult.display_name)
+            searchNearbyLandmarks(
+                position.lat,
+                position.lng
             );
 
             showAddressStatus(
-                '<i class="bi bi-check-circle-fill"></i> Location found and pinned on the map. Nearby landmarks are shown below the map.',
+                '<i class="bi bi-check-circle-fill"></i> Property pin updated successfully.',
                 '#14945f'
             );
-        } catch (error) {
-            console.error('Geocoding error:', error);
-            showAddressStatus(
-                '<i class="bi bi-exclamation-circle"></i> Unable to find the address. Please check the address and try again.',
-                '#c73535'
-            );
-        }
+        });
     }
 
-    function addressChanged() {
-        updateLocationInput();
-        clearTimeout(addressSearchTimer);
-
-        addressSearchTimer = setTimeout(function () {
-            if (address1Input.value.trim() && address2Input.value.trim()) {
-                findAddress();
-            }
-        }, 1000);
-    }
-
-    address1Input.addEventListener('input', addressChanged);
-    address2Input.addEventListener('input', addressChanged);
-
-    [address1Input, address2Input].forEach(function (input) {
-        input.addEventListener('blur', function () {
-            updateLocationInput();
-
-            if (address1Input.value.trim() && address2Input.value.trim()) {
-                findAddress();
-            }
-        });
-
-        input.addEventListener('keydown', function (event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                updateLocationInput();
-                findAddress();
-            }
-        });
-    });
-
+    /* MANUAL MAP PIN SELECTION */
     map.on('click', function (event) {
-        setMarker(event.latlng.lat, event.latlng.lng);
+        setMarker(
+            event.latlng.lat,
+            event.latlng.lng
+        );
 
         showAddressStatus(
             '<i class="bi bi-check-circle-fill"></i> Property location selected. Nearby landmarks are shown below the map.',
@@ -904,14 +800,17 @@ document.addEventListener('DOMContentLoaded', function () {
         );
     });
 
+    /* RESTORE PREVIOUS COORDINATES */
     const oldLatitude = parseFloat(latitudeInput.value);
     const oldLongitude = parseFloat(longitudeInput.value);
 
     if (
         Number.isFinite(oldLatitude) &&
         Number.isFinite(oldLongitude) &&
-        oldLatitude >= -90 && oldLatitude <= 90 &&
-        oldLongitude >= -180 && oldLongitude <= 180
+        oldLatitude >= -90 &&
+        oldLatitude <= 90 &&
+        oldLongitude >= -180 &&
+        oldLongitude <= 180
     ) {
         setMarker(
             oldLatitude,
@@ -920,6 +819,7 @@ document.addEventListener('DOMContentLoaded', function () {
         );
     }
 
+    /* FIX MAP SIZE */
     function fixMapSize() {
         map.invalidateSize(true);
     }
@@ -927,10 +827,11 @@ document.addEventListener('DOMContentLoaded', function () {
     setTimeout(fixMapSize, 100);
     setTimeout(fixMapSize, 500);
     setTimeout(fixMapSize, 1000);
+
     window.addEventListener('resize', fixMapSize);
 
+    /* FORM VALIDATION */
     document.getElementById('listingForm').addEventListener('submit', function (event) {
-        updateLocationInput();
 
         const location = locationInput.value.trim();
         const latitude = latitudeInput.value;
@@ -938,28 +839,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!location) {
             event.preventDefault();
-            alert('Please enter Address 1 and Address 2 first.');
-            address1Input.focus();
+
+            alert('Please enter the complete property address.');
+            locationInput.focus();
+
             return false;
         }
 
         if (!latitude || !longitude) {
             event.preventDefault();
+
             mapWarning.style.display = 'block';
 
             alert(
-                'Please enter a complete address or select the exact property location on the map first.'
+                'Please click the map to select the exact property location first.'
             );
 
-            mapElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            mapElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+
             return false;
         }
 
         mapWarning.style.display = 'none';
+
         return true;
     });
 
-    updateLocationInput();
 });
 </script>
 

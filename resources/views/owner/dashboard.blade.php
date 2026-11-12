@@ -2,36 +2,17 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Owner Dashboard | AccomFinder</title>
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- BOOTSTRAP ICONS -->
-
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-        rel="stylesheet"
-    >
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
-
-        /* =====================================================
-           RESET
-        ===================================================== */
-
         * {
             box-sizing: border-box;
         }
@@ -48,53 +29,37 @@
             background: #f5f8fc;
             font-family: Arial, sans-serif;
             color: #132238;
-
             overflow: hidden;
         }
 
-
-        /* =====================================================
-           SIDEBAR
-        ===================================================== */
+        /* SIDEBAR */
 
         .sidebar {
             width: 264px;
             height: 100vh;
-
             background: #ffffff;
             border-right: 1px solid #dce3eb;
-
             position: fixed;
             left: 0;
             top: 0;
-
             z-index: 1000;
-
             overflow-y: auto;
             overflow-x: hidden;
         }
 
-
-        /* =====================================================
-           LOGO
-        ===================================================== */
+        /* LOGO */
 
         .logo {
             height: 138px;
-
             padding: 35px 26px 20px;
-
             border-bottom: 1px solid #dce3eb;
         }
 
         .logo h2 {
             margin: 0;
-
             font-size: 29px;
             font-weight: 700;
-
             color: #168d68;
-
             letter-spacing: -1px;
         }
 
@@ -104,19 +69,13 @@
 
         .logo small {
             display: block;
-
             margin-top: -3px;
-
             color: #66758a;
-
             font-size: 14px;
             font-weight: 600;
         }
 
-
-        /* =====================================================
-           SIDEBAR MENU
-        ===================================================== */
+        /* SIDEBAR MENU */
 
         .menu {
             padding: 38px 5px;
@@ -125,360 +84,239 @@
         .menu a {
             display: flex;
             align-items: center;
-
             gap: 10px;
-
             margin: 0 0 8px 0;
-
             padding: 14px 26px;
-
             color: #30435c;
-
             text-decoration: none;
-
             border-radius: 11px;
-
             font-size: 16px;
-
             transition: 0.2s;
         }
 
         .menu a:hover {
             background: #eefaf5;
-
             color: #009b68;
         }
 
         .menu a.active {
             background: #cdf8e6;
-
             color: #078e62;
         }
 
         .menu-icon {
             width: 22px;
-
             text-align: center;
-
             font-size: 18px;
         }
 
-
-        /* =====================================================
-           LOGOUT
-        ===================================================== */
+        /* LOGOUT */
 
         .bottom {
             position: absolute;
-
             bottom: 22px;
-
             width: 100%;
-
             padding: 0 5px;
         }
 
         .bottom a {
             display: flex;
             align-items: center;
-
             gap: 10px;
-
             padding: 13px 21px;
-
             color: #30435c;
-
             text-decoration: none;
-
             font-size: 16px;
-
             border-radius: 11px;
         }
 
         .bottom a:hover {
             color: #dc3545;
-
             background: #fff5f5;
         }
 
-
-        /* =====================================================
-           MAIN CONTENT
-        ===================================================== */
+        /* MAIN CONTENT */
 
         .content {
             margin-left: 264px;
-
             width: calc(100% - 264px);
-
             height: 100vh;
-
             overflow: hidden;
         }
 
-
-        /* =====================================================
-           FIXED TOP BAR
-        ===================================================== */
+        /* TOP BAR */
 
         .topbar {
             width: calc(100% - 264px);
-
             height: 74px;
-
             background: #ffffff;
-
             border-bottom: 1px solid #dce3eb;
-
             display: flex;
             justify-content: flex-end;
             align-items: center;
-
             padding: 0 28px;
-
             position: fixed;
-
             top: 0;
             right: 0;
-
             left: 264px;
-
             z-index: 900;
         }
 
         .bell {
             font-size: 23px;
-
             margin-right: 28px;
-
             color: #172334;
         }
 
         .owner-name {
             font-size: 16px;
-
             font-weight: 600;
-
             color: #172334;
         }
 
-
-        /* =====================================================
-           SCROLLABLE MAIN
-        ===================================================== */
+        /* SCROLLABLE MAIN */
 
         .main {
             height: calc(100vh - 74px);
-
             margin-top: 74px;
-
             padding: 35px 14px 50px;
-
             overflow-y: auto;
             overflow-x: hidden;
         }
 
-
-        /* =====================================================
-           PAGE HEADER
-        ===================================================== */
+        /* PAGE HEADER */
 
         .page-header {
             display: flex;
-
             justify-content: space-between;
-
             align-items: center;
-
             padding-bottom: 5px;
         }
 
         .page-header h1 {
             margin: 0;
-
             font-size: 38px;
-
             font-weight: 500;
-
             color: #132238;
         }
 
         .page-header p {
             margin: 8px 0 0;
-
             color: #5d7089;
-
             font-size: 17px;
         }
 
-
-        /* =====================================================
-           ADD LISTING BUTTON
-        ===================================================== */
+        /* ADD LISTING BUTTON */
 
         .add-btn {
             display: inline-flex;
-
             align-items: center;
-
             justify-content: center;
-
             gap: 8px;
-
             background: #14945f;
-
             color: #ffffff;
-
             padding: 14px 22px;
-
             border-radius: 9px;
-
             text-decoration: none;
-
             font-size: 17px;
-
             font-weight: 500;
-
             transition: 0.2s;
         }
 
         .add-btn:hover {
             background: #0d7e50;
-
             color: #ffffff;
         }
 
-
-        /* =====================================================
-           DASHBOARD STAT CARDS
-        ===================================================== */
+        /* DASHBOARD STAT CARDS */
 
         .stats-grid {
             display: grid;
-
             grid-template-columns: repeat(4, minmax(0, 1fr));
-
             gap: 24px;
-
             margin-top: 30px;
         }
 
         .stat-card {
             background: #ffffff;
-
             border: 1px solid #e2e8f0;
-
             border-radius: 17px;
-
             padding: 25px;
-
             min-height: 190px;
-
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
         .icon-box {
             width: 60px;
-
             height: 60px;
-
             border-radius: 15px;
-
             display: flex;
-
             align-items: center;
-
             justify-content: center;
-
             font-size: 28px;
-
             margin-bottom: 18px;
         }
 
         .green {
             background: #d1fae5;
-
             color: #198754;
         }
 
         .blue {
             background: #dbeafe;
-
             color: #2563eb;
         }
 
         .orange {
             background: #ffedd5;
-
             color: #ea580c;
         }
 
         .purple {
             background: #f3e8ff;
-
             color: #9333ea;
         }
 
         .stat-card h2 {
             margin: 0 0 8px;
-
             font-size: 28px;
-
             font-weight: 600;
-
             color: #132238;
         }
 
         .stat-card p {
             margin: 0;
-
             font-size: 15px;
-
             color: #66778c;
         }
 
-
-        /* =====================================================
-           YOUR LISTINGS SECTION
-        ===================================================== */
+        /* YOUR LISTINGS SECTION */
 
         .listings-section {
             background: #ffffff;
-
             border: 1px solid #e2e8f0;
-
             border-radius: 17px;
-
             margin-top: 30px;
-
             padding: 25px;
-
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
         .section-header {
             display: flex;
-
             justify-content: space-between;
-
             align-items: center;
         }
 
         .section-header h2 {
             margin: 0;
-
             font-size: 25px;
-
             font-weight: 600;
-
             color: #17395f;
         }
 
         .manage-link {
             color: #0d6efd;
-
             font-size: 15px;
-
             text-decoration: underline;
         }
 
@@ -488,87 +326,55 @@
 
         .section-divider {
             border: 0;
-
             border-top: 1px solid #e1e6ec;
-
             margin: 20px 0 25px;
         }
 
-
-        /* =====================================================
-           LISTINGS GRID
-        ===================================================== */
+        /* LISTINGS GRID */
 
         .listings-grid {
             display: grid;
-
             grid-template-columns: repeat(3, minmax(0, 1fr));
-
             gap: 24px;
         }
 
-
-        /* =====================================================
-           LISTING CARD
-        ===================================================== */
+        /* LISTING CARD */
 
         .listing-card {
             background: #ffffff;
-
             border: 1px solid #e2e8f0;
-
             border-radius: 17px;
-
             overflow: hidden;
-
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-
             transition: 0.2s;
         }
 
         .listing-card:hover {
             transform: translateY(-2px);
-
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
         }
 
-
-        /* =====================================================
-           LISTING IMAGE
-        ===================================================== */
+        /* LISTING IMAGE */
 
         .listing-image {
             width: 100%;
-
             height: 180px;
-
             object-fit: cover;
-
             display: block;
         }
 
         .listing-image-placeholder {
             width: 100%;
-
             height: 180px;
-
             background: #edf2f7;
-
             display: flex;
-
             justify-content: center;
-
             align-items: center;
-
             color: #a7b2bf;
-
             font-size: 50px;
         }
 
-
-        /* =====================================================
-           LISTING BODY
-        ===================================================== */
+        /* LISTING BODY */
 
         .listing-body {
             padding: 21px;
@@ -576,209 +382,61 @@
 
         .listing-title {
             margin: 0 0 8px;
-
             font-size: 20px;
-
             font-weight: 600;
-
             color: #17395f;
         }
 
         .listing-location {
             display: flex;
-
             align-items: flex-start;
-
             gap: 7px;
-
             color: #66778c;
-
             font-size: 14px;
-
             margin-bottom: 15px;
         }
 
         .listing-location i {
             color: #14945f;
-
             margin-top: 2px;
         }
 
-
-        /* =====================================================
-           PRICE
-        ===================================================== */
-
-        .listing-price {
-            font-size: 22px;
-
-            font-weight: 600;
-
-            color: #14945f;
-
-            margin-bottom: 15px;
-        }
-
-        .listing-price small {
-            font-size: 13px;
-
-            font-weight: 400;
-
-            color: #718096;
-        }
-
-
-        /* =====================================================
-           DETAILS
-        ===================================================== */
-
-        .listing-details {
-            display: grid;
-
-            grid-template-columns: repeat(2, 1fr);
-
-            gap: 10px;
-
-            padding: 14px 0;
-
-            border-top: 1px solid #edf0f4;
-
-            border-bottom: 1px solid #edf0f4;
-        }
-
-        .detail-item {
-            display: flex;
-
-            align-items: center;
-
-            gap: 7px;
-
-            color: #53657b;
-
-            font-size: 12px;
-        }
-
-        .detail-item i {
-            color: #1a8e68;
-
-            font-size: 15px;
-
-            min-width: 17px;
-        }
-
-        .detail-item strong {
-            color: #273d58;
-        }
-
-
-        /* =====================================================
-           STATUS
-        ===================================================== */
-
-        .listing-status {
-            margin-top: 15px;
-        }
-
-        .status-available {
-            display: inline-flex;
-
-            align-items: center;
-
-            gap: 6px;
-
-            background: #d9f7e8;
-
-            color: #168451;
-
-            padding: 6px 12px;
-
-            border-radius: 20px;
-
-            font-size: 13px;
-
-            font-weight: 600;
-        }
-
-        .status-full {
-            display: inline-flex;
-
-            align-items: center;
-
-            gap: 6px;
-
-            background: #fde2e2;
-
-            color: #c73535;
-
-            padding: 6px 12px;
-
-            border-radius: 20px;
-
-            font-size: 13px;
-
-            font-weight: 600;
-        }
-
-
-        /* =====================================================
-           ACTIONS
-        ===================================================== */
+        /* ACTIONS */
 
         .listing-actions {
             display: flex;
-
             gap: 9px;
-
             margin-top: 16px;
         }
 
         .edit-btn {
             flex: 1;
-
             display: flex;
-
             justify-content: center;
-
             align-items: center;
-
             gap: 6px;
-
             background: #0d6efd;
-
             color: #ffffff;
-
             padding: 9px;
-
             border-radius: 8px;
-
             text-decoration: none;
-
             font-size: 13px;
         }
 
         .edit-btn:hover {
             background: #0b5ed7;
-
             color: #ffffff;
         }
 
         .delete-btn {
             flex: 1;
-
             width: 100%;
-
             background: #dc3545;
-
             color: #ffffff;
-
             border: none;
-
             padding: 9px;
-
             border-radius: 8px;
-
             font-size: 13px;
-
             cursor: pointer;
         }
 
@@ -786,68 +444,44 @@
             background: #bb2d3b;
         }
 
-
-        /* =====================================================
-           EMPTY STATE
-        ===================================================== */
+        /* EMPTY STATE */
 
         .empty-card {
             background: #ffffff;
-
             border: 1px solid #e2e8f0;
-
             border-radius: 14px;
-
             padding: 55px 25px;
-
             text-align: center;
         }
 
         .empty-icon {
             width: 70px;
-
             height: 70px;
-
             margin: 0 auto 18px;
-
             border-radius: 50%;
-
             background: #edf2f7;
-
             display: flex;
-
             align-items: center;
-
             justify-content: center;
-
             color: #a7b2bf;
-
             font-size: 34px;
         }
 
         .empty-card h3 {
             margin: 0 0 8px;
-
             font-size: 21px;
-
             color: #243b56;
         }
 
         .empty-card p {
             margin: 0 0 22px;
-
             color: #718096;
-
             font-size: 15px;
         }
 
-
-        /* =====================================================
-           RESPONSIVE
-        ===================================================== */
+        /* RESPONSIVE */
 
         @media (max-width: 1250px) {
-
             .stats-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
@@ -855,25 +489,20 @@
             .listings-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
-
         }
 
-
         @media (max-width: 850px) {
-
             .sidebar {
                 width: 220px;
             }
 
             .content {
                 margin-left: 220px;
-
                 width: calc(100% - 220px);
             }
 
             .topbar {
                 left: 220px;
-
                 width: calc(100% - 220px);
             }
 
@@ -887,728 +516,344 @@
 
             .page-header {
                 align-items: flex-start;
-
                 gap: 20px;
-
                 flex-direction: column;
             }
-
         }
 
-
         @media (max-width: 600px) {
-
             .sidebar {
                 display: none;
             }
 
             .content {
                 margin-left: 0;
-
                 width: 100%;
             }
 
             .topbar {
                 left: 0;
-
                 width: 100%;
             }
-
         }
-
     </style>
 
 </head>
 
-
 <body>
 
+    <!-- SIDEBAR -->
 
-<!-- =========================================================
-     SIDEBAR
-========================================================= -->
+    <div class="sidebar">
 
-<div class="sidebar">
+        <!-- LOGO -->
 
+        <div class="logo">
+            <h2>
+                <span>Accom</span>Finder
+            </h2>
 
-    <!-- LOGO -->
-
-    <div class="logo">
-
-        <h2>
-            <span>Accom</span>Finder
-        </h2>
-
-        <small>
-            Owner Portal
-        </small>
-
-    </div>
-
-
-    <!-- MENU -->
-
-    <div class="menu">
-
-
-        <!-- DASHBOARD -->
-
-        <a
-            href="{{ route('owner.dashboard') }}"
-            class="active"
-        >
-
-            <span class="menu-icon">
-
-                <i class="bi bi-house-door"></i>
-
-            </span>
-
-            Dashboard
-
-        </a>
-
-
-        <!-- LISTINGS -->
-
-        <a href="{{ route('owner.listings') }}">
-
-            <span class="menu-icon">
-
-                <i class="bi bi-buildings"></i>
-
-            </span>
-
-            Listings
-
-        </a>
-
-
-        <!-- TENANTS -->
-
-        <a href="{{ route('owner.tenants') }}">
-
-            <span class="menu-icon">
-
-                <i class="bi bi-people"></i>
-
-            </span>
-
-            Tenants
-
-        </a>
-
-
-        <!-- PAYMENTS -->
-
-        <a href="{{ route('owner.payments') }}">
-
-            <span class="menu-icon">
-
-                <i class="bi bi-cash-stack"></i>
-
-            </span>
-
-            Payments
-
-        </a>
-
-
-        <!-- REPORTS -->
-
-        <a href="{{ route('owner.reports') }}">
-
-            <span class="menu-icon">
-
-                <i class="bi bi-bar-chart"></i>
-
-            </span>
-
-            Reports
-
-        </a>
-
-
-        <!-- MESSAGES -->
-
-        <a href="{{ route('owner.messages') }}">
-
-            <span class="menu-icon">
-
-                <i class="bi bi-chat-dots"></i>
-
-            </span>
-
-            Messages
-
-        </a>
-
-
-    </div>
-
-
-    <!-- LOGOUT -->
-
-    <div class="bottom">
-
-        <a href="{{ route('owner.logout') }}">
-
-            <span class="menu-icon">
-
-                <i class="bi bi-box-arrow-right"></i>
-
-            </span>
-
-            Logout
-
-        </a>
-
-    </div>
-
-
-</div>
-
-
-<!-- =========================================================
-     MAIN CONTENT
-========================================================= -->
-
-<div class="content">
-
-
-    <!-- =====================================================
-         FIXED TOP BAR
-    ====================================================== -->
-
-    <div class="topbar">
-
-        <i class="bi bi-bell bell"></i>
-
-        <div class="owner-name">
-
-            {{ session('owner_name', 'Owner') }}
-
+            <small>Owner Portal</small>
         </div>
 
-    </div>
+        <!-- MENU -->
 
+        <div class="menu">
 
-    <!-- =====================================================
-         SCROLLABLE MAIN
-    ====================================================== -->
+            <a href="{{ route('owner.dashboard') }}" class="active">
+                <span class="menu-icon">
+                    <i class="bi bi-house-door"></i>
+                </span>
+                Dashboard
+            </a>
 
-    <div class="main">
+            <a href="{{ route('owner.listings') }}">
+                <span class="menu-icon">
+                    <i class="bi bi-buildings"></i>
+                </span>
+                Listings
+            </a>
 
+            <a href="{{ route('owner.tenants') }}">
+                <span class="menu-icon">
+                    <i class="bi bi-people"></i>
+                </span>
+                Tenants
+            </a>
 
-        <!-- =================================================
-             PAGE HEADER
-        ================================================== -->
+            <a href="{{ route('owner.payments') }}">
+                <span class="menu-icon">
+                    <i class="bi bi-cash-stack"></i>
+                </span>
+                Payments
+            </a>
 
-        <div class="page-header">
+            <a href="{{ route('owner.reports') }}">
+                <span class="menu-icon">
+                    <i class="bi bi-bar-chart"></i>
+                </span>
+                Reports
+            </a>
 
-            <div>
-
-                <h1>
-                    Owner Dashboard
-                </h1>
-
-                <p>
-                    Manage your properties and tenants
-                </p>
-
-            </div>
-
-
-            <a
-                href="{{ route('owner.listings.create') }}"
-                class="add-btn"
-            >
-
-                <i class="bi bi-plus-lg"></i>
-
-                Add New Listing
-
+            <a href="{{ route('owner.messages') }}">
+                <span class="menu-icon">
+                    <i class="bi bi-chat-dots"></i>
+                </span>
+                Messages
             </a>
 
         </div>
 
+        <!-- LOGOUT -->
 
-        <!-- =================================================
-             STATISTICS
-        ================================================== -->
+        <div class="bottom">
+            <a href="{{ route('owner.logout') }}">
+                <span class="menu-icon">
+                    <i class="bi bi-box-arrow-right"></i>
+                </span>
+                Logout
+            </a>
+        </div>
 
-        <div class="stats-grid">
+    </div>
 
+    <!-- MAIN CONTENT -->
 
-            <!-- TOTAL PROPERTIES -->
+    <div class="content">
 
-            <div class="stat-card">
+        <!-- TOP BAR -->
 
-                <div class="icon-box green">
+        <div class="topbar">
 
-                    <i class="bi bi-buildings"></i>
+            <i class="bi bi-bell bell"></i>
 
-                </div>
-
-                <h2>
-
-                    {{ $totalProperties }}
-
-                </h2>
-
-                <p>
-                    Total Properties
-                </p>
-
+            <div class="owner-name">
+                {{ session('owner_name', 'Owner') }}
             </div>
-
-
-            <!-- ACTIVE TENANTS -->
-
-            <div class="stat-card">
-
-                <div class="icon-box blue">
-
-                    <i class="bi bi-people"></i>
-
-                </div>
-
-                <h2>
-
-                    {{ $activeTenants }}
-
-                </h2>
-
-                <p>
-                    Active Tenants
-                </p>
-
-            </div>
-
-
-            <!-- MONTHLY REVENUE -->
-
-            <div class="stat-card">
-
-                <div class="icon-box orange">
-
-                    <i class="bi bi-cash-stack"></i>
-
-                </div>
-
-                <h2>
-
-                    ₱{{ number_format($monthlyRevenue, 2) }}
-
-                </h2>
-
-                <p>
-                    Monthly Revenue
-                </p>
-
-            </div>
-
-
-            <!-- UNREAD MESSAGES -->
-
-            <div class="stat-card">
-
-                <div class="icon-box purple">
-
-                    <i class="bi bi-chat-dots"></i>
-
-                </div>
-
-                <h2>
-
-                    {{ $unreadMessages }}
-
-                </h2>
-
-                <p>
-                    Unread Messages
-                </p>
-
-            </div>
-
 
         </div>
 
+        <!-- SCROLLABLE MAIN -->
 
-        <!-- =================================================
-             YOUR LISTINGS
-        ================================================== -->
+        <div class="main">
 
-        <div class="listings-section">
+            <!-- PAGE HEADER -->
 
+            <div class="page-header">
 
-            <!-- SECTION HEADER -->
+                <div>
+                    <h1>Owner Dashboard</h1>
+                    <p>Manage your properties and tenants</p>
+                </div>
 
-            <div class="section-header">
-
-                <h2>
-                    Your Listings
-                </h2>
-
-
-                <a
-                    href="{{ route('owner.listings') }}"
-                    class="manage-link"
-                >
-                    Manage All
+                <a href="{{ route('owner.listings.create') }}" class="add-btn">
+                    <i class="bi bi-plus-lg"></i>
+                    Add New Listing
                 </a>
 
             </div>
 
+            <!-- STATISTICS -->
 
-            <hr class="section-divider">
+            <div class="stats-grid">
 
+                <!-- TOTAL PROPERTIES -->
 
-            <!-- =================================================
-                 LISTINGS
-            ================================================== -->
+                <div class="stat-card">
 
-            @if($listings->count() > 0)
+                    <div class="icon-box green">
+                        <i class="bi bi-buildings"></i>
+                    </div>
 
+                    <h2>{{ $totalProperties }}</h2>
+                    <p>Total Properties</p>
 
-                <div class="listings-grid">
+                </div>
 
+                <!-- ACTIVE TENANTS -->
 
-                    @foreach($listings as $listing)
+                <div class="stat-card">
 
+                    <div class="icon-box blue">
+                        <i class="bi bi-people"></i>
+                    </div>
 
-                        <!-- =====================================
-                             LISTING CARD
-                        ====================================== -->
+                    <h2>{{ $activeTenants }}</h2>
+                    <p>Active Tenants</p>
 
-                        <div class="listing-card">
+                </div>
 
+                <!-- MONTHLY REVENUE -->
 
-                            <!-- IMAGE -->
+                <div class="stat-card">
 
-                            @if(!empty($listing->image))
+                    <div class="icon-box orange">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
 
-                                <img
-                                    src="{{ asset('storage/' . $listing->image) }}"
-                                    class="listing-image"
-                                    alt="{{ $listing->name }}"
-                                >
+                    <h2>₱{{ number_format($monthlyRevenue, 2) }}</h2>
+                    <p>Monthly Revenue</p>
 
-                            @else
+                </div>
 
-                                <div class="listing-image-placeholder">
+                <!-- UNREAD MESSAGES -->
 
-                                    <i class="bi bi-buildings"></i>
+                <div class="stat-card">
 
-                                </div>
+                    <div class="icon-box purple">
+                        <i class="bi bi-chat-dots"></i>
+                    </div>
 
-                            @endif
+                    <h2>{{ $unreadMessages }}</h2>
+                    <p>Unread Messages</p>
 
+                </div>
 
-                            <!-- CARD BODY -->
+            </div>
 
-                            <div class="listing-body">
+            <!-- YOUR LISTINGS -->
 
+            <div class="listings-section">
 
-                                <!-- PROPERTY NAME -->
+                <!-- SECTION HEADER -->
 
-                                <h3 class="listing-title">
+                <div class="section-header">
 
-                                    {{ $listing->name }}
+                    <h2>Your Listings</h2>
 
-                                </h3>
+                    <a href="{{ route('owner.listings') }}" class="manage-link">
+                        Manage All
+                    </a>
 
+                </div>
 
-                                <!-- LOCATION -->
+                <hr class="section-divider">
 
-                                <div class="listing-location">
+                <!-- LISTINGS -->
 
-                                    <i class="bi bi-geo-alt-fill"></i>
+                @if($listings->count() > 0)
 
-                                    <span>
+                    <div class="listings-grid">
 
-                                        {{ $listing->address }}
+                        @foreach($listings as $listing)
 
-                                    </span>
+                            <!-- LISTING CARD -->
 
-                                </div>
+                            <div class="listing-card">
 
+                                <!-- IMAGE -->
 
-                                <!-- PRICE -->
+                                @if(!empty($listing->image))
 
-                                <div class="listing-price">
-
-                                    ₱{{ number_format($listing->price, 2) }}
-
-                                    <small>
-                                        / month
-                                    </small>
-
-                                </div>
-
-
-                                <!-- DETAILS -->
-
-                                <div class="listing-details">
-
-
-                                    <!-- TYPE -->
-
-                                    <div class="detail-item">
-
-                                        <i class="bi bi-house"></i>
-
-                                        <span>
-
-                                            <strong>
-                                                Type:
-                                            </strong>
-
-                                            {{ $listing->type ?? 'N/A' }}
-
-                                        </span>
-
-                                    </div>
-
-
-                                    <!-- ROOMS -->
-
-                                    <div class="detail-item">
-
-                                        <i class="bi bi-door-open"></i>
-
-                                        <span>
-
-                                            <strong>
-                                                Rooms:
-                                            </strong>
-
-                                            {{ $listing->bedrooms ?? 0 }}
-
-                                        </span>
-
-                                    </div>
-
-
-                                    <!-- CR -->
-
-                                    <div class="detail-item">
-
-                                        <i class="bi bi-droplet"></i>
-
-                                        <span>
-
-                                            <strong>
-                                                CR:
-                                            </strong>
-
-                                            {{ $listing->bathrooms ?? 0 }}
-
-                                        </span>
-
-                                    </div>
-
-                                    <div class="detail-item">
-
-                                        <i class="bi bi-person"></i>
-
-                                        <span>
-
-                                            <strong>
-                                                Capacity:
-                                            </strong>
-
-                                            {{ $listing->capacity ?? 1 }}
-
-                                            {{ ($listing->capacity ?? 1) == 1 ? 'person' : 'people' }}
-
-                                        </span>
-
-                                    </div>
-
-
-                                    <!-- AMENITIES -->
-
-                                    <div class="detail-item">
-
-                                        <i class="bi bi-stars"></i>
-
-                                        <span>
-
-                                            <strong>
-                                                Amenities:
-                                            </strong>
-
-                                            @if(is_array($listing->amenities) && count($listing->amenities) > 0)
-
-                                                {{ count($listing->amenities) }}
-
-                                            @else
-
-                                                0
-
-                                            @endif
-
-                                        </span>
-
-                                    </div>
-
-
-                                </div>
-
-
-                                <!-- STATUS -->
-
-                                <div class="listing-status">
-
-
-                                    @if($listing->status == 'Available')
-
-
-                                        <span class="status-available">
-
-                                            <i class="bi bi-check-circle-fill"></i>
-
-                                            Available
-
-                                        </span>
-
-
-                                    @else
-
-
-                                        <span class="status-full">
-
-                                            <i class="bi bi-x-circle-fill"></i>
-
-                                            {{ $listing->status }}
-
-                                        </span>
-
-
-                                    @endif
-
-
-                                </div>
-
-
-                                <!-- ACTION BUTTONS -->
-
-                                <div class="listing-actions">
-
-
-                                    <!-- EDIT -->
-
-                                    <a
-                                        href="{{ route('owner.listings.edit', $listing->id) }}"
-                                        class="edit-btn"
+                                    <img
+                                        src="{{ asset('storage/' . $listing->image) }}"
+                                        class="listing-image"
+                                        alt="{{ $listing->name }}"
                                     >
 
-                                        <i class="bi bi-pencil"></i>
+                                @else
 
-                                        Edit
+                                    <div class="listing-image-placeholder">
+                                        <i class="bi bi-buildings"></i>
+                                    </div>
 
-                                    </a>
+                                @endif
 
+                                <!-- CARD BODY -->
 
-                                    <!-- DELETE -->
+                                <div class="listing-body">
 
-                                    <form
-                                        action="{{ route('owner.listings.delete', $listing->id) }}"
-                                        method="POST"
-                                        style="flex:1; margin:0;"
-                                        onsubmit="return confirm('Are you sure you want to delete this listing?');"
-                                    >
+                                    <!-- PROPERTY NAME -->
 
-                                        @csrf
+                                    <h3 class="listing-title">
+                                        {{ $listing->name }}
+                                    </h3>
 
-                                        @method('DELETE')
+                                    <!-- LOCATION -->
 
+                                    <div class="listing-location">
 
-                                        <button
-                                            type="submit"
-                                            class="delete-btn"
+                                        <i class="bi bi-geo-alt-fill"></i>
+
+                                        <span>
+                                            {{ $listing->address }}
+                                        </span>
+
+                                    </div>
+
+                                    <!-- ACTION BUTTONS -->
+
+                                    <div class="listing-actions">
+
+                                        <!-- EDIT -->
+
+                                        <a
+                                            href="{{ route('owner.listings.edit', $listing->id) }}"
+                                            class="edit-btn"
+                                        >
+                                            <i class="bi bi-pencil"></i>
+                                            Edit
+                                        </a>
+
+                                        <!-- DELETE -->
+
+                                        <form
+                                            action="{{ route('owner.listings.delete', $listing->id) }}"
+                                            method="POST"
+                                            style="flex:1; margin:0;"
+                                            onsubmit="return confirm('Are you sure you want to delete this listing?');"
                                         >
 
-                                            <i class="bi bi-trash"></i>
+                                            @csrf
+                                            @method('DELETE')
 
-                                            Delete
+                                            <button type="submit" class="delete-btn">
+                                                <i class="bi bi-trash"></i>
+                                                Delete
+                                            </button>
 
-                                        </button>
+                                        </form>
 
-
-                                    </form>
-
+                                    </div>
 
                                 </div>
-
 
                             </div>
 
-
-                        </div>
-
-
-                    @endforeach
-
-
-                </div>
-
-
-            @else
-
-
-                <!-- =================================================
-                     NO LISTINGS
-                ================================================== -->
-
-                <div class="empty-card">
-
-
-                    <div class="empty-icon">
-
-                        <i class="bi bi-buildings"></i>
+                        @endforeach
 
                     </div>
 
+                @else
 
-                    <h3>
-                        No Listings Yet
-                    </h3>
+                    <!-- NO LISTINGS -->
 
+                    <div class="empty-card">
 
-                    <p>
-                        You have not created any accommodation listings yet.
-                    </p>
+                        <div class="empty-icon">
+                            <i class="bi bi-buildings"></i>
+                        </div>
 
+                        <h3>No Listings Yet</h3>
 
-                    <a
-                        href="{{ route('owner.listings.create') }}"
-                        class="add-btn"
-                    >
+                        <p>
+                            You have not created any accommodation listings yet.
+                        </p>
 
-                        <i class="bi bi-plus-lg"></i>
+                        <a href="{{ route('owner.listings.create') }}" class="add-btn">
+                            <i class="bi bi-plus-lg"></i>
+                            Add New Listing
+                        </a>
 
-                        Add New Listing
+                    </div>
 
-                    </a>
+                @endif
 
-
-                </div>
-
-
-            @endif
-
+            </div>
 
         </div>
 
-
     </div>
 
-
-</div>
-
-
 </body>
-
 </html>

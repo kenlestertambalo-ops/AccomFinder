@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Tenant extends Model
 {
+    use HasFactory;
+
     protected $table = 'tenants';
 
     protected $fillable = [
@@ -19,6 +22,7 @@ class Tenant extends Model
         'start_date',
         'end_date',
         'monthly_rent',
+        'due_day',
         'status',
     ];
 
@@ -26,38 +30,18 @@ class Tenant extends Model
         'start_date' => 'date',
         'end_date' => 'date',
         'monthly_rent' => 'decimal:2',
+        'due_day' => 'integer',
     ];
-
-
-    // =========================================================
-    // OWNER
-    // =========================================================
 
     public function owner()
     {
-        return $this->belongsTo(
-            Owner::class,
-            'owner_id'
-        );
+        return $this->belongsTo(Owner::class, 'owner_id');
     }
 
-
-    // =========================================================
-    // STUDENT
-    // =========================================================
-
-    public function student()
+    public function payments()
     {
-        return $this->belongsTo(
-            Student::class,
-            'student_id'
-        );
+        return $this->hasMany(Payment::class, 'tenant_id');
     }
-
-
-    // =========================================================
-    // ACCOMMODATION
-    // =========================================================
 
     public function accommodation()
     {
