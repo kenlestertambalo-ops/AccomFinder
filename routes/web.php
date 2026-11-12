@@ -645,3 +645,43 @@ Route::delete(
 
 Route::get('/owner/reports', [ReportController::class, 'index'])
     ->name('owner.reports');
+
+    /*
+|--------------------------------------------------------------------------
+| OWNER TENANTS
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/owner/tenants', [
+    OwnerController::class,
+    'tenants'
+])->name('owner.tenants');
+
+Route::post('/owner/tenants', [
+    OwnerController::class,
+    'storeTenant'
+])->name('owner.tenants.store');
+
+/* STATEMENT OF ACCOUNT */
+Route::get('/owner/tenants/{id}/statement', [
+    OwnerController::class,
+    'tenantStatement'
+])->name('owner.tenants.statement');
+
+Route::get('/owner/tenants/{id}/edit', [
+    OwnerController::class,
+    'editTenant'
+])->name('owner.tenants.edit');
+
+Route::put('/owner/tenants/{id}', [
+    OwnerController::class,
+    'updateTenant'
+])->name('owner.tenants.update');
+
+Route::delete('/owner/tenants/{id}', [
+    OwnerController::class,
+    'deleteTenant'
+])->name('owner.tenants.delete');
+
+Route::get('/owner/tenants/{id}/statement', [OwnerController::class, 'tenantStatement'])
+    ->name('owner.tenants.statement');

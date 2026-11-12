@@ -297,7 +297,7 @@
             gap: 8px;
         }
 
-        .edit-btn, .delete-btn {
+        .edit-btn, .delete-btn, .statement-btn {
             width: 38px;
             height: 38px;
             border-radius: 8px;
@@ -317,6 +317,16 @@
 
         .edit-btn:hover {
             background: #1769ff;
+            color: #fff;
+        }
+
+        .statement-btn {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .statement-btn:hover {
+            background: #0369a1;
             color: #fff;
         }
 
@@ -549,6 +559,12 @@
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+
         @if($errors->any())
             <div class="alert alert-danger">
                 <strong>Please correct the following:</strong>
@@ -608,12 +624,12 @@
                                 </span>
                             </td>
 
-                            <<td>
-    <span class="due-day">
-        {{ $tenant->due_day ?? 5 }}
-    </span>
-    of every month
-</td>
+                            <td>
+                                <span class="due-day">
+                                    {{ $tenant->due_day ?? 5 }}
+                                </span>
+                                of every month
+                            </td>
 
                             <td>
                                 @if($tenant->status === 'Active')
@@ -641,6 +657,17 @@
 
                             <td>
                                 <div class="action-icons">
+
+                                    <!-- STATEMENT OF ACCOUNT -->
+                                    <a
+                                        href="{{ route('owner.tenants.statement', $tenant->id) }}"
+                                        class="statement-btn"
+                                        title="Statement of Account"
+                                    >
+                                        <i class="bi bi-file-earmark-text"></i>
+                                    </a>
+
+                                    <!-- EDIT TENANT -->
                                     <button
                                         type="button"
                                         class="edit-btn"
@@ -661,6 +688,7 @@
                                         <i class="bi bi-pencil"></i>
                                     </button>
 
+                                    <!-- DELETE TENANT -->
                                     <form
                                         action="{{ route('owner.tenants.delete', $tenant->id) }}"
                                         method="POST"
@@ -678,6 +706,7 @@
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
+
                                 </div>
                             </td>
                         </tr>
@@ -706,6 +735,7 @@
 >
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
+
             <div class="modal-header">
                 <h5 class="modal-title" id="addTenantModalLabel">Add New Tenant</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -716,6 +746,7 @@
 
                 <div class="modal-body">
                     <div class="row g-4">
+
                         <div class="col-md-6">
                             <label class="form-label">Name <span class="required">*</span></label>
                             <input type="text" name="name" class="form-control" placeholder="Enter tenant name" value="{{ old('name') }}" required>
@@ -779,6 +810,7 @@
                                 <option value="Inactive" {{ old('status') == 'Inactive' ? 'selected' : '' }}>Inactive</option>
                             </select>
                         </div>
+
                     </div>
                 </div>
 
@@ -789,6 +821,7 @@
                     </button>
                 </div>
             </form>
+
         </div>
     </div>
 </div>
@@ -803,6 +836,7 @@
 >
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
+
             <div class="modal-header">
                 <h5 class="modal-title" id="editTenantModalLabel">
                     <i class="bi bi-pencil-square me-2"></i>Edit Tenant
@@ -816,6 +850,7 @@
 
                 <div class="modal-body">
                     <div class="row g-4">
+
                         <div class="col-md-6">
                             <label class="form-label">Name <span class="required">*</span></label>
                             <input type="text" name="name" id="edit_name" class="form-control" required>
@@ -879,6 +914,7 @@
                                 <option value="Inactive">Inactive</option>
                             </select>
                         </div>
+
                     </div>
                 </div>
 
@@ -889,6 +925,7 @@
                     </button>
                 </div>
             </form>
+
         </div>
     </div>
 </div>
