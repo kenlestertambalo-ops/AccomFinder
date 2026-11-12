@@ -1,8 +1,7 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <eta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Owner Reports | AccomFinder</title>
 
@@ -1060,7 +1059,7 @@
         <div class="report-modal-body">
 
             <p class="modal-description">
-                Select the report sections you want to include in your PDF preview.
+                The Monthly Rent Ledger is automatically included. Select any additional sections for your PDF preview.
             </p>
 
             <label class="select-all">
@@ -1093,10 +1092,10 @@
             </label>
 
             <label class="report-option">
-                <input type="checkbox" class="report-checkbox" value="ledger">
+                <input type="checkbox" class="report-checkbox" value="ledger" checked disabled>
                 <span class="report-option-content">
-                    <span class="report-option-title">Monthly Rent Status</span>
-                    <span class="report-option-description">Rent due, payments, balances, and status</span>
+                    <span class="report-option-title">Monthly Rent Ledger (Always Included)</span>
+                    <span class="report-option-description">Tenant, billing month, monthly rent, due date, amount paid, balance, and payment status</span>
                 </span>
             </label>
 
@@ -1365,18 +1364,25 @@
     });
 
     // SELECT ALL
+    // The monthly rent ledger is always included and cannot be unchecked.
     selectAllReports.addEventListener('change', function() {
         reportCheckboxes.forEach(function(checkbox) {
-            checkbox.checked = selectAllReports.checked;
+            if (!checkbox.disabled) {
+                checkbox.checked = selectAllReports.checked;
+            }
         });
     });
 
     reportCheckboxes.forEach(function(checkbox) {
         checkbox.addEventListener('change', function() {
-            selectAllReports.checked = Array.from(reportCheckboxes)
-                .every(function(item) {
-                    return item.checked;
+            const optionalCheckboxes = Array.from(reportCheckboxes)
+                .filter(function(item) {
+                    return !item.disabled;
                 });
+
+            selectAllReports.checked = optionalCheckboxes.every(function(item) {
+                return item.checked;
+            });
         });
     });
 
@@ -1649,10 +1655,9 @@
                 return checkbox.value;
             });
 
-        if (selectedReports.length === 0) {
-            modalMessage.textContent = 'Please select at least one report.';
-            modalMessage.style.display = 'block';
-            return;
+        // Always include the monthly rent ledger in every generated PDF.
+        if (!selectedReports.includes('ledger')) {
+            selectedReports.unshift('ledger');
         }
 
         if (!window.jspdf || !window.jspdf.jsPDF) {
