@@ -13,6 +13,7 @@ use App\Http\Controllers\SavedPropertyController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\StudentLedgerController;
 
 use App\Models\Accommodation;
 
@@ -690,3 +691,32 @@ Route::get('/owner/tenants/{id}/statement', [OwnerController::class, 'tenantStat
     '/student/accommodation/{accommodation}/rooms/{room}/visit',
     [InquiryController::class, 'storeVisit']
 )->name('student.visit.store');
+
+// Tenant property and room navigation
+Route::get('/owner/tenants/property/{accommodation}/rooms',
+    [OwnerController::class, 'tenantRooms']
+)->name('owner.tenants.rooms');
+
+Route::get('/owner/tenants/property/{accommodation}/rooms/{room}',
+    [OwnerController::class, 'roomTenants']
+)->name('owner.tenants.room');
+
+Route::get(
+    '/owner/rooms/{accommodation}/{room}/ledger',
+    [OwnerController::class, 'roomLedgerTenants']
+)->name('owner.tenants.ledger.tenants');
+
+Route::get(
+    '/owner/tenants/{tenant}/ledger',
+    [OwnerController::class, 'tenantLedger']
+)->name('owner.tenants.ledger.show');
+
+Route::post(
+    '/owner/tenants/property/{accommodation}/room/{room}/assign-ledger',
+    [OwnerController::class, 'assignLedgerAccess']
+)->name('owner.tenants.ledger.assign');
+
+Route::get('/student/my-rental-ledger', [
+    StudentLedgerController::class,
+    'index'
+])->name('student.rental-ledger');

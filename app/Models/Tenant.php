@@ -15,6 +15,7 @@ class Tenant extends Model
         'owner_id',
         'student_id',
         'accommodation_id',
+        'room_id',
         'name',
         'email',
         'phone',
@@ -45,9 +46,11 @@ class Tenant extends Model
 
     public function accommodation()
     {
-        return $this->belongsTo(
-            Accommodation::class,
-            'accommodation_id'
-        );
+        return $this->belongsTo(Accommodation::class, 'accommodation_id');
+    }
+
+    public function room()
+    {
+        return $this->belongsTo(Room::class, 'room_id');
     }
 }

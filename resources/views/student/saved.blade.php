@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -393,6 +392,10 @@
 
             <a href="{{ route('student.messages') }}">
                 💬 Messages
+            </a>
+
+            <a href="{{ route('student.rental-ledger') }}">
+                🧾 My Rental Ledger
             </a>
 
         </div>

@@ -454,6 +454,10 @@
                 💬 Messages
             </a>
 
+            <a href="{{ route('student.rental-ledger') }}">
+                🧾 My Rental Ledger
+            </a>
+
         </div>
 
         <div class="logout">

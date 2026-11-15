@@ -4,28 +4,105 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use App\Models\Accommodation;
 use App\Models\Inquiry;
 use App\Models\Payment;
 use App\Models\Tenant;
+use App\Models\Room;
 
 class OwnerController extends Controller
 {
+    private function checkOwner()
+    {
+        if (!session('owner_id')) {
+            return redirect()->route('owner.login')
+                ->with('error', 'Please login as an owner first.');
+        }
+
+        return null;
+    }
+
     /*
     |--------------------------------------------------------------------------
-    | OWNER DASHBOARD
+    | SYNCHRONIZE ROOM OCCUPANCY
+    |--------------------------------------------------------------------------
+    */
+
+    private function syncRoomOccupancy($roomId)
+    {
+        if (!$roomId) {
+            return;
+        }
+
+        $room = Room::find($roomId);
+
+        if (!$room) {
+            return;
+        }
+
+        $activeTenants = Tenant::where('room_id', $room->id)
+            ->where('status', 'Active')
+            ->count();
+
+        $capacity = (int) $room->capacity;
+
+        $room->current_occupants = $activeTenants;
+
+        if ($room->status !== 'Maintenance') {
+            $room->status = $activeTenants >= $capacity
+                ? 'Occupied'
+                : 'Available';
+        }
+
+        $room->save();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | CHECK ROOM CAPACITY
+    |--------------------------------------------------------------------------
+    */
+
+    private function checkRoomCapacity($room, $tenantId = null)
+    {
+        $query = Tenant::where('room_id', $room->id)
+            ->where('status', 'Active');
+
+        if ($tenantId) {
+            $query->where('id', '!=', $tenantId);
+        }
+
+        $activeTenants = $query->count();
+
+        if ($activeTenants >= (int) $room->capacity) {
+            throw ValidationException::withMessages([
+                'room_id' => 'This room has reached its maximum capacity of '
+                    . $room->capacity . ' occupants. Please select another room.',
+            ]);
+        }
+
+        if ($room->status === 'Maintenance') {
+            throw ValidationException::withMessages([
+                'room_id' => 'This room is currently under maintenance and cannot accept tenants.',
+            ]);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | DASHBOARD
     |--------------------------------------------------------------------------
     */
 
     public function dashboard()
     {
-        $ownerId = session('owner_id');
-
-        if (!$ownerId) {
-            return redirect()->route('owner.login')
-                ->with('error', 'Please login as an owner first.');
+        if ($redirect = $this->checkOwner()) {
+            return $redirect;
         }
+
+        $ownerId = session('owner_id');
 
         $totalProperties = Accommodation::where('owner_id', $ownerId)->count();
 
@@ -46,6 +123,7 @@ class OwnerController extends Controller
             ->get();
 
         $listings = Accommodation::where('owner_id', $ownerId)
+            ->with('roomRecords')
             ->latest()
             ->get();
 
@@ -61,64 +139,44 @@ class OwnerController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | OWNER LISTINGS
+    | LISTINGS
     |--------------------------------------------------------------------------
     */
 
     public function listings()
     {
-        $ownerId = session('owner_id');
-
-        if (!$ownerId) {
-            return redirect()->route('owner.login')
-                ->with('error', 'Please login as an owner first.');
+        if ($redirect = $this->checkOwner()) {
+            return $redirect;
         }
 
-        $listings = Accommodation::where('owner_id', $ownerId)
+        $listings = Accommodation::where('owner_id', session('owner_id'))
+            ->with('roomRecords')
             ->latest()
             ->get();
 
         return view('owner.listings', compact('listings'));
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | EDIT LISTING
-    |--------------------------------------------------------------------------
-    */
-
     public function editListing($id)
     {
-        $ownerId = session('owner_id');
-
-        if (!$ownerId) {
-            return redirect()->route('owner.login')
-                ->with('error', 'Please login as an owner first.');
+        if ($redirect = $this->checkOwner()) {
+            return $redirect;
         }
 
-        $listing = Accommodation::where('owner_id', $ownerId)
+        $listing = Accommodation::where('owner_id', session('owner_id'))
             ->with('roomRecords')
             ->findOrFail($id);
 
         return view('owner.listing-edit', compact('listing'));
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE LISTING
-    |--------------------------------------------------------------------------
-    */
-
     public function updateListing(Request $request, $id)
     {
-        $ownerId = session('owner_id');
-
-        if (!$ownerId) {
-            return redirect()->route('owner.login')
-                ->with('error', 'Please login as an owner first.');
+        if ($redirect = $this->checkOwner()) {
+            return $redirect;
         }
 
-        $listing = Accommodation::where('owner_id', $ownerId)
+        $listing = Accommodation::where('owner_id', session('owner_id'))
             ->findOrFail($id);
 
         $validated = $request->validate([
@@ -138,22 +196,13 @@ class OwnerController extends Controller
             ->with('success', 'Listing updated successfully!');
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | DELETE LISTING
-    |--------------------------------------------------------------------------
-    */
-
     public function deleteListing($id)
     {
-        $ownerId = session('owner_id');
-
-        if (!$ownerId) {
-            return redirect()->route('owner.login')
-                ->with('error', 'Please login as an owner first.');
+        if ($redirect = $this->checkOwner()) {
+            return $redirect;
         }
 
-        $listing = Accommodation::where('owner_id', $ownerId)
+        $listing = Accommodation::where('owner_id', session('owner_id'))
             ->findOrFail($id);
 
         $listing->delete();
@@ -164,24 +213,136 @@ class OwnerController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | TENANTS
+    | TENANT PROPERTY SELECTION
     |--------------------------------------------------------------------------
     */
 
     public function tenants()
     {
-        $ownerId = session('owner_id');
-
-        if (!$ownerId) {
-            return redirect()->route('owner.login')
-                ->with('error', 'Please login as an owner first.');
+        if ($redirect = $this->checkOwner()) {
+            return $redirect;
         }
 
-        $tenants = Tenant::where('owner_id', $ownerId)
+        $properties = Accommodation::where('owner_id', session('owner_id'))
+            ->withCount('roomRecords')
             ->latest()
             ->get();
 
-        return view('owner.tenants', compact('tenants'));
+        return view('owner.tenants', compact('properties'));
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | TENANT ROOM SELECTION
+    |--------------------------------------------------------------------------
+    */
+
+    public function tenantRooms($accommodation)
+    {
+        if ($redirect = $this->checkOwner()) {
+            return $redirect;
+        }
+
+        $property = Accommodation::where('owner_id', session('owner_id'))
+            ->findOrFail($accommodation);
+
+        $rooms = Room::where('accommodation_id', $property->id)
+            ->withCount([
+                'tenants',
+                'tenants as active_tenants_count' => function ($query) {
+                    $query->where('status', 'Active');
+                },
+            ])
+            ->orderBy('room_name')
+            ->get();
+
+        foreach ($rooms as $room) {
+            $this->syncRoomOccupancy($room->id);
+            $room->refresh();
+        }
+
+        return view('owner.tenant-rooms', compact(
+            'property',
+            'rooms'
+        ));
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | TENANTS ASSIGNED TO A ROOM
+    |--------------------------------------------------------------------------
+    */
+
+    public function roomTenants($accommodation, $room)
+    {
+        if ($redirect = $this->checkOwner()) {
+            return $redirect;
+        }
+
+        $property = Accommodation::where('owner_id', session('owner_id'))
+            ->findOrFail($accommodation);
+
+        $roomRecord = Room::where('accommodation_id', $property->id)
+            ->findOrFail($room);
+
+        $this->syncRoomOccupancy($roomRecord->id);
+
+        $roomRecord->refresh();
+
+        $tenants = Tenant::where('owner_id', session('owner_id'))
+            ->where('accommodation_id', $property->id)
+            ->where('room_id', $roomRecord->id)
+            ->latest()
+            ->get();
+
+        $assignedLedgerTenant = $tenants->firstWhere(
+            'id',
+            (int) ($roomRecord->ledger_tenant_id ?? 0)
+        );
+
+        return view('owner.room-tenants', compact(
+            'property',
+            'roomRecord',
+            'tenants',
+            'assignedLedgerTenant'
+        ));
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ASSIGN RENTAL LEDGER ACCESS
+    |--------------------------------------------------------------------------
+    */
+
+    public function assignLedgerAccess(Request $request, $accommodation, $room)
+    {
+        if ($redirect = $this->checkOwner()) {
+            return $redirect;
+        }
+
+        $validated = $request->validate([
+            'tenant_id' => 'required|integer',
+        ]);
+
+        $property = Accommodation::where('owner_id', session('owner_id'))
+            ->findOrFail($accommodation);
+
+        $roomRecord = Room::where('accommodation_id', $property->id)
+            ->findOrFail($room);
+
+        $tenant = Tenant::where('owner_id', session('owner_id'))
+            ->where('accommodation_id', $property->id)
+            ->where('room_id', $roomRecord->id)
+            ->where('status', 'Active')
+            ->findOrFail($validated['tenant_id']);
+
+        $roomRecord->ledger_tenant_id = $tenant->id;
+        $roomRecord->save();
+
+        return redirect()->route('owner.tenants.room', [
+            'accommodation' => $property->id,
+            'room' => $roomRecord->id,
+        ])->with('success', $tenant->name . ' has been assigned to view this room rental ledger.');
     }
 
     /*
@@ -192,39 +353,65 @@ class OwnerController extends Controller
 
     public function storeTenant(Request $request)
     {
-        $ownerId = session('owner_id');
-
-        if (!$ownerId) {
-            return redirect()->route('owner.login')
-                ->with('error', 'Please login as an owner first.');
+        if ($redirect = $this->checkOwner()) {
+            return $redirect;
         }
 
+        $ownerId = session('owner_id');
+
         $validated = $request->validate([
+            'accommodation_id' => 'required|integer|exists:accommodations,id',
+            'room_id' => 'required|integer|exists:rooms,id',
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:30',
             'property_type' => 'required|string|max:100',
             'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
             'monthly_rent' => 'required|numeric|min:0',
             'due_day' => 'required|integer|min:1|max:31',
-            'status' => 'required|string|in:Active,Inactive',
+            'status' => 'required|in:Active,Inactive',
         ]);
 
-        Tenant::create([
-            'owner_id' => $ownerId,
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'phone' => $validated['phone'],
-            'property_type' => $validated['property_type'],
-            'start_date' => $validated['start_date'],
-            'end_date' => $validated['end_date'],
-            'monthly_rent' => $validated['monthly_rent'],
-            'due_day' => $validated['due_day'],
-            'status' => $validated['status'],
-        ]);
+        $property = Accommodation::where('owner_id', $ownerId)
+            ->findOrFail($validated['accommodation_id']);
 
-        return redirect()->route('owner.tenants')
+        $room = Room::where('accommodation_id', $property->id)
+            ->findOrFail($validated['room_id']);
+
+        DB::transaction(function () use (
+            $validated,
+            $ownerId,
+            $property,
+            $room
+        ) {
+            if ($validated['status'] === 'Active') {
+                $this->checkRoomCapacity($room);
+            }
+
+            Tenant::create([
+                'owner_id' => $ownerId,
+                'accommodation_id' => $property->id,
+                'room_id' => $room->id,
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                'property_type' => $validated['property_type'],
+                'start_date' => $validated['start_date'],
+                'end_date' => $validated['end_date'] ?? null,
+                'monthly_rent' => $validated['monthly_rent'],
+                'due_day' => $validated['due_day'],
+                'status' => $validated['status'],
+            ]);
+
+            $this->syncRoomOccupancy($room->id);
+        });
+
+        return redirect()
+            ->route('owner.tenants.room', [
+                'accommodation' => $property->id,
+                'room' => $room->id,
+            ])
             ->with('success', 'Tenant added successfully!');
     }
 
@@ -236,14 +423,11 @@ class OwnerController extends Controller
 
     public function editTenant($id)
     {
-        $ownerId = session('owner_id');
-
-        if (!$ownerId) {
-            return redirect()->route('owner.login')
-                ->with('error', 'Please login as an owner first.');
+        if ($redirect = $this->checkOwner()) {
+            return $redirect;
         }
 
-        $tenant = Tenant::where('owner_id', $ownerId)
+        $tenant = Tenant::where('owner_id', session('owner_id'))
             ->findOrFail($id);
 
         return view('owner.tenant-edit', compact('tenant'));
@@ -257,41 +441,74 @@ class OwnerController extends Controller
 
     public function updateTenant(Request $request, $id)
     {
-        $ownerId = session('owner_id');
-
-        if (!$ownerId) {
-            return redirect()->route('owner.login')
-                ->with('error', 'Please login as an owner first.');
+        if ($redirect = $this->checkOwner()) {
+            return $redirect;
         }
+
+        $ownerId = session('owner_id');
 
         $tenant = Tenant::where('owner_id', $ownerId)
             ->findOrFail($id);
 
         $validated = $request->validate([
+            'accommodation_id' => 'required|integer|exists:accommodations,id',
+            'room_id' => 'required|integer|exists:rooms,id',
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:30',
             'property_type' => 'required|string|max:100',
             'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
             'monthly_rent' => 'required|numeric|min:0',
             'due_day' => 'required|integer|min:1|max:31',
-            'status' => 'required|string|in:Active,Inactive',
+            'status' => 'required|in:Active,Inactive',
         ]);
 
-        $tenant->update([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'phone' => $validated['phone'],
-            'property_type' => $validated['property_type'],
-            'start_date' => $validated['start_date'],
-            'end_date' => $validated['end_date'],
-            'monthly_rent' => $validated['monthly_rent'],
-            'due_day' => $validated['due_day'],
-            'status' => $validated['status'],
-        ]);
+        $property = Accommodation::where('owner_id', $ownerId)
+            ->findOrFail($validated['accommodation_id']);
 
-        return redirect()->route('owner.tenants')
+        $room = Room::where('accommodation_id', $property->id)
+            ->findOrFail($validated['room_id']);
+
+        $oldRoomId = $tenant->room_id;
+
+        DB::transaction(function () use (
+            $tenant,
+            $validated,
+            $property,
+            $room,
+            $id
+        ) {
+            if ($validated['status'] === 'Active') {
+                $this->checkRoomCapacity($room, $id);
+            }
+
+            $tenant->update([
+                'accommodation_id' => $property->id,
+                'room_id' => $room->id,
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                'property_type' => $validated['property_type'],
+                'start_date' => $validated['start_date'],
+                'end_date' => $validated['end_date'] ?? null,
+                'monthly_rent' => $validated['monthly_rent'],
+                'due_day' => $validated['due_day'],
+                'status' => $validated['status'],
+            ]);
+
+            $this->syncRoomOccupancy($room->id);
+        });
+
+        if ($oldRoomId && (int) $oldRoomId !== (int) $room->id) {
+            $this->syncRoomOccupancy($oldRoomId);
+        }
+
+        return redirect()
+            ->route('owner.tenants.room', [
+                'accommodation' => $property->id,
+                'room' => $room->id,
+            ])
             ->with('success', 'Tenant updated successfully!');
     }
 
@@ -303,17 +520,30 @@ class OwnerController extends Controller
 
     public function deleteTenant($id)
     {
-        $ownerId = session('owner_id');
-
-        if (!$ownerId) {
-            return redirect()->route('owner.login')
-                ->with('error', 'Please login as an owner first.');
+        if ($redirect = $this->checkOwner()) {
+            return $redirect;
         }
 
-        $tenant = Tenant::where('owner_id', $ownerId)
+        $tenant = Tenant::where('owner_id', session('owner_id'))
             ->findOrFail($id);
 
-        $tenant->delete();
+        $propertyId = $tenant->accommodation_id;
+        $roomId = $tenant->room_id;
+
+        DB::transaction(function () use ($tenant, $roomId) {
+            $tenant->delete();
+
+            if ($roomId) {
+                $this->syncRoomOccupancy($roomId);
+            }
+        });
+
+        if ($propertyId && $roomId) {
+            return redirect()->route('owner.tenants.room', [
+                'accommodation' => $propertyId,
+                'room' => $roomId,
+            ])->with('success', 'Tenant deleted successfully!');
+        }
 
         return redirect()->route('owner.tenants')
             ->with('success', 'Tenant deleted successfully!');
@@ -327,24 +557,24 @@ class OwnerController extends Controller
 
     public function tenantStatement($id)
     {
-        $ownerId = session('owner_id');
-
-        if (!$ownerId) {
-            return redirect()->route('owner.login')
-                ->with('error', 'Please login as an owner first.');
+        if ($redirect = $this->checkOwner()) {
+            return $redirect;
         }
 
-        $tenant = Tenant::where('owner_id', $ownerId)
-            ->with(['accommodation', 'payments'])
+        $tenant = Tenant::where('owner_id', session('owner_id'))
+            ->with(['accommodation', 'room', 'payments'])
             ->findOrFail($id);
 
-        if (!$tenant->start_date || !$tenant->end_date) {
+        if (!$tenant->start_date) {
             return redirect()->route('owner.tenants')
-                ->with('error', 'Tenant rental dates are incomplete.');
+                ->with('error', 'Tenant rental start date is missing.');
         }
 
         $start = Carbon::parse($tenant->start_date)->startOfMonth();
-        $end = Carbon::parse($tenant->end_date)->startOfMonth();
+
+        $end = $tenant->end_date
+            ? Carbon::parse($tenant->end_date)->startOfMonth()
+            : Carbon::now()->startOfMonth();
 
         $monthlyRent = (float) $tenant->monthly_rent;
         $dueDay = min(max((int) ($tenant->due_day ?? 5), 1), 31);
@@ -362,7 +592,6 @@ class OwnerController extends Controller
 
         for ($month = $start->copy(); $month->lte($end); $month->addMonth()) {
             $billingMonth = $month->format('Y-m');
-
             $monthPayments = $paymentsByMonth->get($billingMonth, collect());
 
             $amountPaid = (float) $monthPayments->sum('amount');
@@ -410,18 +639,32 @@ class OwnerController extends Controller
 
     /*
     |--------------------------------------------------------------------------
+    | TENANT RENTAL LEDGER
+    |--------------------------------------------------------------------------
+    */
+
+    public function tenantLedger($id)
+    {
+        if ($redirect = $this->checkOwner()) {
+            return $redirect;
+        }
+
+        return $this->tenantStatement($id);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | REPORTS
     |--------------------------------------------------------------------------
     */
 
     public function reports()
     {
-        $ownerId = session('owner_id');
-
-        if (!$ownerId) {
-            return redirect()->route('owner.login')
-                ->with('error', 'Please login as an owner first.');
+        if ($redirect = $this->checkOwner()) {
+            return $redirect;
         }
+
+        $ownerId = session('owner_id');
 
         $totalRevenue = Payment::where('owner_id', $ownerId)
             ->where('status', 'Paid')

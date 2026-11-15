@@ -2,15 +2,12 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Student Dashboard | AccomFinder</title>
 
     <style>
-
         * {
             margin: 0;
             padding: 0;
@@ -18,8 +15,7 @@
             font-family: Arial, Helvetica, sans-serif;
         }
 
-        html,
-        body {
+        html, body {
             width: 100%;
             min-height: 100%;
             margin: 0;
@@ -31,10 +27,7 @@
             color: #333;
         }
 
-
-        /* =====================================================
-           FIXED SIDEBAR
-        ===================================================== */
+        /* SIDEBAR */
 
         .sidebar {
             position: fixed;
@@ -46,9 +39,6 @@
             border-right: 1px solid #ddd;
             z-index: 1000;
         }
-
-
-        /* LOGO */
 
         .logo {
             height: 145px;
@@ -68,9 +58,6 @@
             color: gray;
             font-size: 16px;
         }
-
-
-        /* MENU */
 
         .menu {
             padding: 20px;
@@ -96,7 +83,6 @@
             color: white;
         }
 
-
         /* LOGOUT */
 
         .logout {
@@ -120,10 +106,7 @@
             color: #2563eb;
         }
 
-
-        /* =====================================================
-           MAIN AREA
-        ===================================================== */
+        /* MAIN AREA */
 
         .main {
             margin-left: 250px;
@@ -132,10 +115,7 @@
             background: #f5f7fb;
         }
 
-
-        /* =====================================================
-           FIXED TOP BAR
-        ===================================================== */
+        /* TOP BAR */
 
         .navbar {
             position: fixed;
@@ -175,10 +155,7 @@
             color: #111;
         }
 
-
-        /* =====================================================
-           DASHBOARD CONTENT
-        ===================================================== */
+        /* DASHBOARD CONTENT */
 
         .content {
             padding: 110px 40px 40px 40px;
@@ -197,10 +174,7 @@
             font-size: 22px;
         }
 
-
-        /* =====================================================
-           SUCCESS MESSAGE
-        ===================================================== */
+        /* SUCCESS MESSAGE */
 
         .success-message {
             background: #dcfce7;
@@ -212,10 +186,7 @@
             font-size: 16px;
         }
 
-
-        /* =====================================================
-           SEARCH BOX
-        ===================================================== */
+        /* SEARCH BOX */
 
         .search-box {
             background: #ffffff;
@@ -256,10 +227,7 @@
             background: #1d4ed8;
         }
 
-
-        /* =====================================================
-           STAT CARDS
-        ===================================================== */
+        /* STAT CARDS */
 
         .cards {
             display: grid;
@@ -292,10 +260,7 @@
             font-size: 18px;
         }
 
-
-        /* =====================================================
-           BOTTOM SECTION
-        ===================================================== */
+        /* BOTTOM SECTION */
 
         .bottom {
             display: grid;
@@ -317,10 +282,7 @@
             color: #111;
         }
 
-
-        /* =====================================================
-           RECENT SEARCHES
-        ===================================================== */
+        /* RECENT SEARCHES */
 
         .recent {
             list-style: none;
@@ -337,10 +299,7 @@
             border-bottom: none;
         }
 
-
-        /* =====================================================
-           RECOMMENDED PROPERTY
-        ===================================================== */
+        /* RECOMMENDED PROPERTY */
 
         .property {
             display: flex;
@@ -378,13 +337,9 @@
             margin-top: 5px;
         }
 
-
-        /* =====================================================
-           RESPONSIVE
-        ===================================================== */
+        /* RESPONSIVE */
 
         @media (max-width: 1100px) {
-
             .cards {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -392,12 +347,9 @@
             .bottom {
                 grid-template-columns: 1fr;
             }
-
         }
 
-
         @media (max-width: 800px) {
-
             .sidebar {
                 width: 220px;
             }
@@ -414,12 +366,9 @@
             .cards {
                 grid-template-columns: 1fr 1fr;
             }
-
         }
 
-
         @media (max-width: 650px) {
-
             .sidebar {
                 position: relative;
                 width: 100%;
@@ -457,61 +406,50 @@
                 grid-template-columns: 1fr;
             }
 
+            .logout {
+                position: relative;
+                padding: 10px 0;
+            }
         }
-
     </style>
 
 </head>
 
-
 <body>
 
-
-    <!-- =====================================================
-         FIXED SIDEBAR
-    ===================================================== -->
+    <!-- SIDEBAR -->
 
     <div class="sidebar">
 
         <div class="logo">
-
-            <h2>
-                AccomFinder
-            </h2>
-
-            <p>
-                Student Portal
-            </p>
-
+            <h2>AccomFinder</h2>
+            <p>Student Portal</p>
         </div>
-
 
         <div class="menu">
 
-            <a
-                href="{{ route('student.dashboard') }}"
-                class="active"
-            >
+            <a href="{{ route('student.dashboard') }}" class="active">
                 🏠 Dashboard
             </a>
-
 
             <a href="{{ route('student.search') }}">
                 🔍 Search
             </a>
 
-
             <a href="{{ route('student.saved') }}">
                 ❤️ Saved
             </a>
-
 
             <a href="{{ route('student.messages') }}">
                 💬 Messages
             </a>
 
-        </div>
+            <!-- MY RENTAL LEDGER -->
+            <a href="{{ route('student.rental-ledger') }}">
+                🧾 My Rental Ledger
+            </a>
 
+        </div>
 
         <div class="logout">
 
@@ -523,17 +461,11 @@
 
     </div>
 
-
-    <!-- =====================================================
-         MAIN AREA
-    ===================================================== -->
+    <!-- MAIN AREA -->
 
     <div class="main">
 
-
-        <!-- =================================================
-             FIXED TOP BAR
-        ================================================= -->
+        <!-- TOP BAR -->
 
         <div class="navbar">
 
@@ -555,24 +487,17 @@
 
         </div>
 
-
-        <!-- =================================================
-             DASHBOARD CONTENT
-        ================================================= -->
+        <!-- DASHBOARD CONTENT -->
 
         <div class="content">
 
-
-            <!-- WELCOME -->
-
             <h1 class="welcome-title">
-
+                Welcome, {{ session('student_name', 'Student') }}!
             </h1>
 
             <p class="welcome-text">
                 Find your perfect student accommodation.
             </p>
-
 
             <!-- SUCCESS MESSAGE -->
 
@@ -584,10 +509,7 @@
 
             @endif
 
-
-            <!-- =================================================
-                 SEARCH
-            ================================================= -->
+            <!-- SEARCH -->
 
             <div class="search-box">
 
@@ -608,114 +530,63 @@
 
             </div>
 
-
-            <!-- =================================================
-                 STAT CARDS
-            ================================================= -->
+            <!-- STAT CARDS -->
 
             <div class="cards">
 
-
-                <!-- AVAILABLE LISTINGS -->
-
                 <div class="card">
-
-                    <div class="card-icon">
-                        🏠
-                    </div>
+                    <div class="card-icon">🏠</div>
 
                     <h2>
                         {{ $availableListings ?? 0 }}
                     </h2>
 
-                    <p>
-                        Available Listings
-                    </p>
-
+                    <p>Available Listings</p>
                 </div>
 
-
-                <!-- SAVED -->
-
                 <div class="card">
-
-                    <div class="card-icon">
-                        ❤️
-                    </div>
+                    <div class="card-icon">❤️</div>
 
                     <h2>
-    {{ $savedPropertiesCount ?? 0 }}
-</h2>
+                        {{ $savedPropertiesCount ?? 0 }}
+                    </h2>
 
-                    <p>
-                        Saved Properties
-                    </p>
-
+                    <p>Saved Properties</p>
                 </div>
 
-
-                <!-- LOCATIONS -->
-
                 <div class="card">
-
-                    <div class="card-icon">
-                        📍
-                    </div>
+                    <div class="card-icon">📍</div>
 
                     <h2>
                         {{ $locations ?? 0 }}
                     </h2>
 
-                    <p>
-                        Locations
-                    </p>
-
+                    <p>Locations</p>
                 </div>
-
-
-                <!-- PRICE RANGE -->
 
                 <div class="card">
-
-                    <div class="card-icon">
-                        💰
-                    </div>
+                    <div class="card-icon">💰</div>
 
                     <h2 style="font-size: 25px;">
-
                         ₱{{ number_format($minPrice ?? 1500) }}
-
                         -
-
                         ₱{{ number_format($maxPrice ?? 4500) }}
-
                     </h2>
 
-                    <p>
-                        Price Range
-                    </p>
-
+                    <p>Price Range</p>
                 </div>
-
 
             </div>
 
-
-            <!-- =================================================
-                 BOTTOM PANELS
-            ================================================= -->
+            <!-- BOTTOM PANELS -->
 
             <div class="bottom">
-
 
                 <!-- RECENT SEARCHES -->
 
                 <div class="panel">
 
-                    <h3>
-                        Recent Searches
-                    </h3>
-
+                    <h3>Recent Searches</h3>
 
                     @if(isset($recentSearches) && count($recentSearches) > 0)
 
@@ -741,15 +612,11 @@
 
                 </div>
 
-
                 <!-- NEW / AVAILABLE LISTINGS -->
 
                 <div class="panel">
 
-                    <h3>
-                        New Listings
-                    </h3>
-
+                    <h3>New Listings</h3>
 
                     @if(isset($approvedListings) && count($approvedListings) > 0)
 
@@ -757,33 +624,26 @@
 
                             <div class="property">
 
-                                <div
-                                    style="
-                                        width:90px;
-                                        height:70px;
-                                        border-radius:8px;
-                                        background:#eaf0f8;
-                                        display:flex;
-                                        align-items:center;
-                                        justify-content:center;
-                                        margin-right:15px;
-                                        font-size:30px;
-                                        flex-shrink:0;
-                                    "
-                                >
+                                <div style="
+                                    width:90px;
+                                    height:70px;
+                                    border-radius:8px;
+                                    background:#eaf0f8;
+                                    display:flex;
+                                    align-items:center;
+                                    justify-content:center;
+                                    margin-right:15px;
+                                    font-size:30px;
+                                    flex-shrink:0;
+                                ">
                                     🏠
                                 </div>
 
-
                                 <div>
 
-                                    <h4>
-                                        {{ $listing->name }}
-                                    </h4>
+                                    <h4>{{ $listing->name }}</h4>
 
-                                    <p>
-                                        📍 {{ $listing->address }}
-                                    </p>
+                                    <p>📍 {{ $listing->address }}</p>
 
                                     <div class="price">
                                         ₱{{ number_format($listing->price, 2) }}
@@ -803,51 +663,41 @@
 
                     @endif
 
-
                 </div>
-
 
             </div>
 
-
         </div>
-
 
     </div>
 
-
-    <!-- =====================================================
-         SEARCH SCRIPT
-    ===================================================== -->
+    <!-- SEARCH SCRIPT -->
 
     <script>
-
         function searchAccommodation() {
 
-            const search =
-                document.getElementById('dashboardSearch').value.trim();
-
+            const search = document
+                .getElementById('dashboardSearch')
+                .value.trim();
 
             if (search === '') {
-
-                window.location.href =
-                    "{{ route('student.search') }}";
-
+                window.location.href = "{{ route('student.search') }}";
                 return;
-
             }
-
 
             window.location.href =
                 "{{ route('student.search') }}" +
                 "?search=" +
                 encodeURIComponent(search);
-
         }
 
+        document.getElementById('dashboardSearch')
+            .addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    searchAccommodation();
+                }
+            });
     </script>
 
-
 </body>
-
 </html>

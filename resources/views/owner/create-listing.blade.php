@@ -75,7 +75,8 @@
         .remove-image-btn { display: none; margin-top: 10px; padding: 8px 12px; border: 1px solid #dc3545; border-radius: 7px; color: #dc3545; background: #fff; cursor: pointer; }
 
         .address-status { display: none; margin-top: 8px; font-size: 13px; line-height: 1.4; }
-        .complete-address input { background: #f5f8fc; color: #53657b; cursor: not-allowed; }
+        #barangaySelect, #streetSelect { cursor: pointer; }
+        #streetSelect:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
         .amenities-section, .map-section { margin-top: 25px; padding-top: 22px; border-top: 1px solid #e1e6ec; }
         .amenities-title { font-size: 16px; font-weight: 600; color: #17395f; margin-bottom: 14px; }
         .amenity-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
@@ -119,13 +120,11 @@
             .amenity-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .landmark-list { grid-template-columns: 1fr; }
         }
-
         @media (max-width: 850px) {
             .sidebar { width: 220px; }
             .content { left: 220px; }
             .form-row, .form-row.four, .coordinates { grid-template-columns: 1fr; }
         }
-
         @media (max-width: 600px) {
             .sidebar { display: none; }
             .content { left: 0; }
@@ -202,7 +201,6 @@
                   enctype="multipart/form-data">
                 @csrf
 
-                <!-- PROPERTY IMAGE -->
                 <div class="image-upload-section">
                     <div class="image-upload-title">
                         <i class="bi bi-image"></i> Property Image
@@ -210,14 +208,8 @@
 
                     <div class="field">
                         <label for="image">Upload a photo of your accommodation</label>
-                        <input
-                            type="file"
-                            name="image"
-                            id="image"
-                            class="image-input"
-                            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-                            required
-                        >
+                        <input type="file" name="image" id="image" class="image-input"
+                               accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
                         <p class="image-help">
                             Accepted formats: JPG, JPEG, PNG, or WEBP. Maximum file size: 2 MB.
                             Choose a clear photo that shows your property.
@@ -239,36 +231,52 @@
                     </div>
                 </div>
 
-                <!-- PROPERTY NAME + COMPLETE ADDRESS -->
                 <div class="form-row">
                     <div class="field">
                         <label for="title">Property / Company Name</label>
-                        <input
-                            type="text"
-                            id="title"
-                            name="title"
-                            value="{{ old('title') }}"
-                            placeholder="Enter property or company name"
-                            required
-                        >
+                        <input type="text" id="title" name="title" value="{{ old('title') }}"
+                               placeholder="Enter property or company name" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="barangaySelect">Barangay (General Santos City)</label>
+                        <select id="barangaySelect" name="barangay_selection">
+                            <option value="">Select Barangay</option>
+                            @foreach ([
+                                'Apopong', 'Baluan', 'Batomelong', 'Buayan', 'Bula',
+                                'Calumpang', 'City Heights', 'Conel', 'Dadiangas East',
+                                'Dadiangas North', 'Dadiangas South', 'Dadiangas West',
+                                'Fatima', 'Katangawan', 'Labangal', 'Lagao', 'Ligaya',
+                                'Mabuhay', 'Olympog', 'San Isidro', 'San Jose', 'Siguel',
+                                'Sinawal', 'Tambler', 'Tinagacan', 'Upper Labay'
+                            ] as $barangay)
+                                <option value="{{ $barangay }}" {{ old('barangay_selection') == $barangay ? 'selected' : '' }}>
+                                    {{ $barangay }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="image-help">Select the barangay where the property is located.</p>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="field">
+                        <label for="streetSelect">Street</label>
+                        <select id="streetSelect" name="street_selection" disabled>
+                            <option value="">Select a barangay first</option>
+                        </select>
+                        <div id="streetStatus" class="address-status"></div>
                     </div>
 
                     <div class="field">
                         <label for="location">Complete Address</label>
-                        <input
-                            type="text"
-                            id="location"
-                            name="location"
-                            value="{{ old('location') }}"
-                            placeholder="Enter complete property address"
-                            autocomplete="street-address"
-                            required
-                        >
+                        <input type="text" id="location" name="location" value="{{ old('location') }}"
+                               placeholder="Select a barangay and street, or pin the exact location on the map"
+                               autocomplete="street-address" required>
                         <div id="addressStatus" class="address-status"></div>
                     </div>
                 </div>
 
-                <!-- PROPERTY TYPE -->
                 <div class="form-row">
                     <div class="field">
                         <label for="type">Property Type</label>
@@ -287,26 +295,19 @@
                     Monthly rent, room capacity, bathrooms, and room amenities will be added in Step 2.
                 </p>
 
-                <!-- DESCRIPTION -->
                 <div class="field">
                     <label for="description">Description</label>
-                    <textarea
-                        id="description"
-                        name="description"
-                        placeholder="Describe your property..."
-                    >{{ old('description') }}</textarea>
+                    <textarea id="description" name="description"
+                              placeholder="Describe your property...">{{ old('description') }}</textarea>
                 </div>
 
-                <!-- MAP -->
                 <div class="map-section">
-                    <div class="map-title">
-                        <i class="bi bi-geo-alt-fill"></i>Property Location on Map
-                    </div>
-
+                    <div class="map-title"><i class="bi bi-geo-alt-fill"></i>Property Location on Map</div>
                     <p class="map-help">
                         Navigate around the map and click the exact location of your property to place a pin.
                         You can drag the marker to adjust its exact position.
                         The latitude and longitude will automatically update.
+                        Select a barangay and mapped street above, then click the map to place the exact pin.
                         Nearby landmarks will appear below the map.
                     </p>
 
@@ -314,51 +315,30 @@
 
                     <div class="landmarks-section">
                         <div class="landmarks-header">
-                            <h3 class="landmarks-title">
-                                <i class="bi bi-pin-map-fill"></i>Nearby Landmarks
-                            </h3>
+                            <h3 class="landmarks-title"><i class="bi bi-pin-map-fill"></i>Nearby Landmarks</h3>
                         </div>
-
                         <p class="landmarks-help">
                             Nearby schools, hospitals, banks, stores, restaurants, transport stops and other places around the property.
                         </p>
-
                         <div id="landmarkLoading" class="landmark-loading">
                             <i class="bi bi-arrow-repeat"></i> Searching for nearby landmarks...
                         </div>
-
                         <div id="landmarkMessage" class="landmark-message" style="display:block;">
                             Pin the property on the map to see nearby landmarks.
                         </div>
-
                         <div id="landmarkList" class="landmark-list"></div>
                     </div>
 
                     <div class="coordinates">
                         <div class="field">
                             <label for="latitude">Latitude</label>
-                            <input
-                                type="text"
-                                name="latitude"
-                                id="latitude"
-                                class="coordinate-input"
-                                value="{{ old('latitude') }}"
-                                readonly
-                                required
-                            >
+                            <input type="text" name="latitude" id="latitude" class="coordinate-input"
+                                   value="{{ old('latitude') }}" readonly required>
                         </div>
-
                         <div class="field">
                             <label for="longitude">Longitude</label>
-                            <input
-                                type="text"
-                                name="longitude"
-                                id="longitude"
-                                class="coordinate-input"
-                                value="{{ old('longitude') }}"
-                                readonly
-                                required
-                            >
+                            <input type="text" name="longitude" id="longitude" class="coordinate-input"
+                                   value="{{ old('longitude') }}" readonly required>
                         </div>
                     </div>
 
@@ -367,12 +347,10 @@
                     </div>
                 </div>
 
-                <!-- BUTTONS -->
                 <div class="buttons">
                     <button type="submit" class="create-btn">
                         <i class="bi bi-plus-lg"></i> Save Property &amp; Add Rooms
                     </button>
-
                     <a href="{{ route('owner.listings') }}" class="cancel-btn">
                         <i class="bi bi-x-circle"></i> Cancel
                     </a>
@@ -381,494 +359,1204 @@
         </div>
     </div>
 </div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+/*
+|--------------------------------------------------------------------------
+| ACCOMFINDER LOCATION CONFIGURATION
+|--------------------------------------------------------------------------
+*/
 
-    const defaultLatitude = 6.1164;
-    const defaultLongitude = 125.1716;
+const CITY_NAME = 'General Santos City';
+const COUNTRY_NAME = 'Philippines';
 
-    const locationInput = document.getElementById('location');
-    const latitudeInput = document.getElementById('latitude');
-    const longitudeInput = document.getElementById('longitude');
-    const mapElement = document.getElementById('map');
-    const mapWarning = document.getElementById('mapWarning');
-    const addressStatus = document.getElementById('addressStatus');
-    const landmarkLoading = document.getElementById('landmarkLoading');
-    const landmarkMessage = document.getElementById('landmarkMessage');
-    const landmarkList = document.getElementById('landmarkList');
+const barangaySelect = document.getElementById('barangaySelect');
+const streetSelect = document.getElementById('streetSelect');
+const locationInput = document.getElementById('location');
 
-    /* IMAGE PREVIEW */
-    const imageInput = document.getElementById('image');
-    const imagePreview = document.getElementById('imagePreview');
-    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
-    const removeImageBtn = document.getElementById('removeImageBtn');
+const streetStatus = document.getElementById('streetStatus');
+const addressStatus = document.getElementById('addressStatus');
 
-    let previewObjectUrl = null;
+const latitudeInput = document.getElementById('latitude');
+const longitudeInput = document.getElementById('longitude');
 
-    imageInput.addEventListener('change', function () {
-        const file = this.files && this.files[0];
+const landmarkList = document.getElementById('landmarkList');
+const landmarkLoading = document.getElementById('landmarkLoading');
+const landmarkMessage = document.getElementById('landmarkMessage');
 
-        if (previewObjectUrl) {
-            URL.revokeObjectURL(previewObjectUrl);
-            previewObjectUrl = null;
+let selectedBarangay = '';
+let selectedStreet = '';
+let currentBarangayBoundary = null;
+let currentMapMarker = null;
+let map = null;
+
+let reverseGeocodeRequest = 0;
+let streetRequest = 0;
+let landmarkRequest = 0;
+
+/*
+|--------------------------------------------------------------------------
+| VERIFIED STREET CORRECTIONS
+|--------------------------------------------------------------------------
+|
+| Only add streets here when their barangay assignment has been verified.
+| Piña Street is explicitly assigned to Dadiangas North.
+|
+*/
+
+const VERIFIED_STREETS = {
+    'pina street': 'Dadiangas North',
+    'piña street': 'Dadiangas North'
+};
+
+/*
+|--------------------------------------------------------------------------
+| TEXT NORMALIZATION
+|--------------------------------------------------------------------------
+*/
+
+function normalizeText(value) {
+    return String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/\bstreet\b/g, 'street')
+        .replace(/[.,]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function normalizeStreetName(value) {
+    return normalizeText(value)
+        .replace(/\b(st|street)\b/g, 'street')
+        .trim();
+}
+
+/*
+|--------------------------------------------------------------------------
+| DISPLAY STATUS
+|--------------------------------------------------------------------------
+*/
+
+function showStreetStatus(message, color = '#64748b') {
+    streetStatus.style.display = 'block';
+    streetStatus.style.color = color;
+    streetStatus.textContent = message;
+}
+
+function showAddressStatus(message, color = '#159466') {
+    addressStatus.style.display = 'block';
+    addressStatus.style.color = color;
+    addressStatus.textContent = message;
+}
+
+/*
+|--------------------------------------------------------------------------
+| BARANGAY BOUNDARY LOOKUP
+|--------------------------------------------------------------------------
+|
+| Find an exact named administrative boundary.
+| If a boundary cannot be verified, do not use nearby street results.
+|
+*/
+
+async function findBarangayBoundary(barangay) {
+
+    const query = encodeURIComponent(
+        barangay + ', General Santos City, Philippines'
+    );
+
+    const url =
+        'https://nominatim.openstreetmap.org/search' +
+        '?format=jsonv2' +
+        '&q=' + query +
+        '&addressdetails=1' +
+        '&polygon_geojson=1' +
+        '&limit=10';
+
+    const response = await fetch(url, {
+        headers: {
+            'Accept': 'application/json'
         }
-
-        if (!file) {
-            imagePreview.src = '';
-            imagePreviewContainer.style.display = 'none';
-            removeImageBtn.style.display = 'none';
-            return;
-        }
-
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-
-        if (!allowedTypes.includes(file.type)) {
-            alert('Please select a JPG, PNG, or WEBP image.');
-            this.value = '';
-            imagePreview.src = '';
-            imagePreviewContainer.style.display = 'none';
-            removeImageBtn.style.display = 'none';
-            return;
-        }
-
-        if (file.size > 2 * 1024 * 1024) {
-            alert('The image must be 2 MB or smaller.');
-            this.value = '';
-            imagePreview.src = '';
-            imagePreviewContainer.style.display = 'none';
-            removeImageBtn.style.display = 'none';
-            return;
-        }
-
-        previewObjectUrl = URL.createObjectURL(file);
-        imagePreview.src = previewObjectUrl;
-        imagePreviewContainer.style.display = 'block';
-        removeImageBtn.style.display = 'inline-block';
     });
 
-    removeImageBtn.addEventListener('click', function () {
-        if (previewObjectUrl) {
-            URL.revokeObjectURL(previewObjectUrl);
-            previewObjectUrl = null;
-        }
-
-        imageInput.value = '';
-        imagePreview.src = '';
-        imagePreviewContainer.style.display = 'none';
-        removeImageBtn.style.display = 'none';
-    });
-
-    /* MAP SETUP */
-    const map = L.map(mapElement, {
-        center: [defaultLatitude, defaultLongitude],
-        zoom: 15,
-        zoomControl: true,
-        scrollWheelZoom: true
-    });
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        minZoom: 3,
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    let marker = null;
-    let landmarkRequestNumber = 0;
-
-    function showAddressStatus(message, color) {
-        addressStatus.style.display = 'block';
-        addressStatus.style.color = color;
-        addressStatus.innerHTML = message;
+    if (!response.ok) {
+        throw new Error('Unable to retrieve barangay boundary data.');
     }
 
-    function escapeHtml(value) {
-        const div = document.createElement('div');
-        div.textContent = value;
-        return div.innerHTML;
-    }
+    const results = await response.json();
 
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-        const earthRadius = 6371000;
-        const radians = Math.PI / 180;
+    const expectedBarangay = normalizeText(barangay);
 
-        const differenceLatitude = (lat2 - lat1) * radians;
-        const differenceLongitude = (lon2 - lon1) * radians;
+    const exactResult = results.find(result => {
 
-        const a =
-            Math.sin(differenceLatitude / 2) ** 2 +
-            Math.cos(lat1 * radians) *
-            Math.cos(lat2 * radians) *
-            Math.sin(differenceLongitude / 2) ** 2;
+        const address = result.address || {};
 
-        return earthRadius * 2 * Math.atan2(
-            Math.sqrt(a),
-            Math.sqrt(1 - a)
+        const resultName = normalizeText(
+            result.name || ''
         );
-    }
 
-    function formatDistance(distance) {
-        return distance < 1000
-            ? Math.round(distance) + ' m'
-            : (distance / 1000).toFixed(1) + ' km';
-    }
+        const displayName = normalizeText(
+            result.display_name || ''
+        );
 
-    function getElementCoordinates(element) {
-        if (
-            typeof element.lat === 'number' &&
-            typeof element.lon === 'number'
-        ) {
-            return {
-                latitude: element.lat,
-                longitude: element.lon
-            };
-        }
+        const addressNames = [
+            address.suburb,
+            address.neighbourhood,
+            address.city_district,
+            address.quarter,
+            address.village,
+            address.town
+        ]
+            .filter(Boolean)
+            .map(normalizeText);
 
-        if (
-            element.center &&
-            typeof element.center.lat === 'number' &&
-            typeof element.center.lon === 'number'
-        ) {
-            return {
-                latitude: element.center.lat,
-                longitude: element.center.lon
-            };
-        }
+        const exactName =
+            resultName === expectedBarangay ||
+            addressNames.includes(expectedBarangay);
 
+        const mentionsBarangay =
+            displayName.includes(expectedBarangay);
+
+        const mentionsCity =
+            displayName.includes(normalizeText(CITY_NAME));
+
+        return (
+            result.geojson &&
+            ['Polygon', 'MultiPolygon'].includes(result.geojson.type) &&
+            (exactName || mentionsBarangay) &&
+            mentionsCity
+        );
+    });
+
+    if (!exactResult) {
         return null;
     }
 
-    function getLandmarkIcon(tags) {
-        const amenity = tags.amenity || '';
-        const shop = tags.shop || '';
-        const tourism = tags.tourism || '';
-        const leisure = tags.leisure || '';
-        const highway = tags.highway || '';
+    return exactResult;
+}
 
-        if (amenity === 'school' || tags.education) return 'bi-mortarboard-fill';
-        if (amenity === 'hospital' || amenity === 'clinic' || tags.healthcare) return 'bi-hospital-fill';
-        if (amenity === 'bank' || amenity === 'atm') return 'bi-bank2';
-        if (amenity === 'restaurant' || amenity === 'cafe' || amenity === 'fast_food') return 'bi-cup-hot-fill';
-        if (amenity === 'place_of_worship') return 'bi-building-fill';
-        if (highway === 'bus_stop' || tags.public_transport) return 'bi-bus-front-fill';
-        if (shop) return 'bi-shop';
-        if (tourism === 'hotel' || tourism === 'guest_house') return 'bi-buildings-fill';
-        if (leisure === 'park' || leisure === 'playground') return 'bi-tree-fill';
+/*
+|--------------------------------------------------------------------------
+| CONVERT OSM OBJECT TO OVERPASS AREA ID
+|--------------------------------------------------------------------------
+*/
 
-        return 'bi-geo-alt-fill';
+function getOverpassAreaId(result) {
+
+    const osmId = Number(result.osm_id);
+
+    if (!Number.isFinite(osmId)) {
+        return null;
     }
 
-    function getLandmarkType(tags) {
-        const amenity = tags.amenity || '';
-        const shop = tags.shop || '';
-        const tourism = tags.tourism || '';
-        const leisure = tags.leisure || '';
-        const highway = tags.highway || '';
-
-        if (amenity === 'school') return 'School';
-        if (amenity === 'hospital' || amenity === 'clinic' || tags.healthcare) return 'Health Facility';
-        if (amenity === 'bank' || amenity === 'atm') return 'Bank / ATM';
-        if (amenity === 'restaurant' || amenity === 'cafe' || amenity === 'fast_food') return 'Food / Restaurant';
-        if (amenity === 'place_of_worship') return 'Place of Worship';
-        if (highway === 'bus_stop' || tags.public_transport) return 'Transport';
-        if (shop) return 'Shop';
-        if (tourism) return 'Tourism / Accommodation';
-        if (leisure) return 'Leisure / Recreation';
-
-        return 'Nearby Place';
+    if (result.osm_type === 'relation') {
+        return 3600000000 + osmId;
     }
 
-    function displayLandmarks(landmarks, propertyLatitude, propertyLongitude) {
-        landmarkList.innerHTML = '';
+    if (result.osm_type === 'way') {
+        return 2400000000 + osmId;
+    }
 
-        if (!landmarks || landmarks.length === 0) {
-            landmarkMessage.style.display = 'block';
-            landmarkMessage.innerHTML =
-                '<i class="bi bi-info-circle"></i> No mapped landmarks were found within 1 kilometer of this property.';
+    return null;
+}
+
+/*
+|--------------------------------------------------------------------------
+| LOAD STREET NAMES INSIDE VERIFIED BARANGAY BOUNDARY
+|--------------------------------------------------------------------------
+*/
+
+async function loadBarangayStreets(barangay) {
+
+    const requestNumber = ++streetRequest;
+
+    streetSelect.disabled = true;
+    streetSelect.innerHTML = `
+        <option value="">Loading mapped streets...</option>
+    `;
+
+    currentBarangayBoundary = null;
+
+    showStreetStatus(
+        'Looking for the official mapped boundary of ' + barangay + '...'
+    );
+
+    try {
+
+        const boundary = await findBarangayBoundary(barangay);
+
+        if (requestNumber !== streetRequest) {
             return;
         }
 
-        const prepared = [];
+        if (!boundary) {
 
-        landmarks.forEach(function (element) {
-            const coordinates = getElementCoordinates(element);
+            streetSelect.innerHTML = `
+                <option value="">Street data unavailable</option>
+            `;
 
-            if (!coordinates) return;
-
-            const tags = element.tags || {};
-            const name = tags.name || '';
-
-            if (!name.trim()) return;
-
-            prepared.push({
-                tags: tags,
-                name: name,
-                distance: calculateDistance(
-                    propertyLatitude,
-                    propertyLongitude,
-                    coordinates.latitude,
-                    coordinates.longitude
-                )
-            });
-        });
-
-        prepared.sort((a, b) => a.distance - b.distance);
-
-        const unique = [];
-        const seen = new Set();
-
-        prepared.forEach(function (item) {
-            const key = item.name.toLowerCase().trim();
-
-            if (seen.has(key)) return;
-
-            seen.add(key);
-            unique.push(item);
-        });
-
-        const finalLandmarks = unique.slice(0, 20);
-
-        if (finalLandmarks.length === 0) {
-            landmarkMessage.style.display = 'block';
-            landmarkMessage.innerHTML =
-                '<i class="bi bi-info-circle"></i> No named landmarks were found near this property.';
-            return;
-        }
-
-        landmarkMessage.style.display = 'none';
-
-        finalLandmarks.forEach(function (landmark) {
-            const item = document.createElement('div');
-            item.className = 'landmark-item';
-
-            const iconClass = getLandmarkIcon(landmark.tags);
-            const type = getLandmarkType(landmark.tags);
-
-            item.innerHTML =
-                '<div class="landmark-icon"><i class="bi ' + iconClass + '"></i></div>' +
-                '<div class="landmark-info">' +
-                    '<div class="landmark-name">' + escapeHtml(landmark.name) + '</div>' +
-                    '<div class="landmark-type">' + escapeHtml(type) + '</div>' +
-                    '<div class="landmark-distance"><i class="bi bi-signpost-2"></i> ' +
-                        formatDistance(landmark.distance) +
-                    '</div>' +
-                '</div>';
-
-            landmarkList.appendChild(item);
-        });
-    }
-
-    async function searchNearbyLandmarks(latitude, longitude) {
-        const requestNumber = ++landmarkRequestNumber;
-
-        landmarkLoading.style.display = 'block';
-        landmarkMessage.style.display = 'none';
-        landmarkList.innerHTML = '';
-
-        const query = `
-            [out:json][timeout:25];
-            (
-                nwr(around:1000,${latitude},${longitude})["name"]["amenity"];
-                nwr(around:1000,${latitude},${longitude})["name"]["shop"];
-                nwr(around:1000,${latitude},${longitude})["name"]["tourism"];
-                nwr(around:1000,${latitude},${longitude})["name"]["leisure"];
-                nwr(around:1000,${latitude},${longitude})["name"]["highway"="bus_stop"];
-                nwr(around:1000,${latitude},${longitude})["name"]["public_transport"];
-                nwr(around:1000,${latitude},${longitude})["name"]["healthcare"];
-                nwr(around:1000,${latitude},${longitude})["name"]["education"];
+            showStreetStatus(
+                'No exact barangay boundary was found in OpenStreetMap. ' +
+                'Please use the map pin and manually confirm the address.',
+                '#c73535'
             );
-            out center tags;
+
+            return;
+        }
+
+        currentBarangayBoundary = boundary;
+
+        const areaId = getOverpassAreaId(boundary);
+
+        if (!areaId) {
+
+            streetSelect.innerHTML = `
+                <option value="">Street data unavailable</option>
+            `;
+
+            showStreetStatus(
+                'The barangay boundary cannot be converted into a street search area.',
+                '#c73535'
+            );
+
+            return;
+        }
+
+        showStreetStatus(
+            'Barangay boundary found. Loading streets within ' + barangay + '...'
+        );
+
+        const overpassQuery = `
+            [out:json][timeout:25];
+            area(${areaId})->.barangayArea;
+            way["highway"]["name"](area.barangayArea);
+            out tags;
         `;
 
-        try {
-            const response = await fetch(
-                'https://overpass-api.de/api/interpreter',
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                    },
-                    body: 'data=' + encodeURIComponent(query)
-                }
+        const overpassResponse = await fetch(
+            'https://overpass-api.de/api/interpreter',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'data=' + encodeURIComponent(overpassQuery)
+            }
+        );
+
+        if (!overpassResponse.ok) {
+            throw new Error('Street data service is unavailable.');
+        }
+
+        const overpassData = await overpassResponse.json();
+
+        if (requestNumber !== streetRequest) {
+            return;
+        }
+
+        const streetNames = [
+            ...new Set(
+                (overpassData.elements || [])
+                    .map(element => element.tags?.name)
+                    .filter(name => name && name.trim())
+            )
+        ].sort((a, b) => a.localeCompare(b));
+
+        streetSelect.innerHTML = `
+            <option value="">Select Street</option>
+        `;
+
+        if (streetNames.length === 0) {
+
+            streetSelect.innerHTML = `
+                <option value="">No mapped streets found</option>
+            `;
+
+            showStreetStatus(
+                'No named streets were found inside this mapped barangay boundary. ' +
+                'You can still place the exact pin on the map.',
+                '#c73535'
             );
 
-            if (!response.ok) {
-                throw new Error('Nearby landmark request failed.');
+            return;
+        }
+
+        streetNames.forEach(street => {
+
+            const option = document.createElement('option');
+
+            option.value = street;
+            option.textContent = street;
+
+            streetSelect.appendChild(option);
+        });
+
+        streetSelect.disabled = false;
+
+        showStreetStatus(
+            streetNames.length +
+            ' mapped street names found inside ' +
+            barangay + '.',
+            '#159466'
+        );
+
+    } catch (error) {
+
+        if (requestNumber !== streetRequest) {
+            return;
+        }
+
+        console.error('Street loading error:', error);
+
+        streetSelect.innerHTML = `
+            <option value="">Street data unavailable</option>
+        `;
+
+        showStreetStatus(
+            'Unable to load street data. Please use the map pin instead.',
+            '#c73535'
+        );
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| BUILD COMPLETE ADDRESS
+|--------------------------------------------------------------------------
+*/
+
+function buildCompleteAddress() {
+
+    const barangay = selectedBarangay;
+    const street = selectedStreet;
+
+    if (!barangay) {
+        return '';
+    }
+
+    if (street && street.trim() !== '') {
+
+        return (
+            street +
+            ', ' +
+            barangay +
+            ', ' +
+            CITY_NAME +
+            ', Philippines'
+        );
+    }
+
+    return (
+        barangay +
+        ', ' +
+        CITY_NAME +
+        ', Philippines'
+    );
+}
+
+/*
+|--------------------------------------------------------------------------
+| BARANGAY DROPDOWN CHANGE
+|--------------------------------------------------------------------------
+*/
+
+barangaySelect.addEventListener('change', async function () {
+
+    selectedBarangay = this.value;
+    selectedStreet = '';
+
+    streetSelect.innerHTML = `
+        <option value="">Select a barangay first</option>
+    `;
+
+    streetSelect.disabled = true;
+
+    if (!selectedBarangay) {
+        return;
+    }
+
+    const address = buildCompleteAddress();
+
+    locationInput.value = address;
+
+    showAddressStatus(
+        'Barangay selected. Choose a street or place the exact pin on the map.'
+    );
+
+    await loadBarangayStreets(selectedBarangay);
+});
+
+/*
+|--------------------------------------------------------------------------
+| STREET DROPDOWN CHANGE
+|--------------------------------------------------------------------------
+*/
+
+streetSelect.addEventListener('change', function () {
+
+    selectedStreet = this.value;
+
+    if (!selectedStreet || !selectedBarangay) {
+        return;
+    }
+
+    /*
+     * Apply verified street-to-barangay correction.
+     */
+
+    const normalizedStreet = normalizeStreetName(selectedStreet);
+
+    const verifiedBarangay = VERIFIED_STREETS[normalizedStreet];
+
+    if (
+        verifiedBarangay &&
+        verifiedBarangay !== selectedBarangay
+    ) {
+
+        selectedBarangay = verifiedBarangay;
+
+        barangaySelect.value = verifiedBarangay;
+
+        showAddressStatus(
+            'The selected street is assigned to ' +
+            verifiedBarangay +
+            '. Please confirm the location.',
+            '#159466'
+        );
+
+        loadBarangayStreets(verifiedBarangay);
+
+        return;
+    }
+
+    locationInput.value = buildCompleteAddress();
+
+    showAddressStatus(
+        'Address filled from the selected barangay and street. ' +
+        'Please check the address before saving.'
+    );
+});
+
+/*
+|--------------------------------------------------------------------------
+| VERIFY REVERSE-GEOCODED STREET AGAINST VERIFIED CORRECTIONS
+|--------------------------------------------------------------------------
+*/
+
+function correctKnownBarangay(streetName, returnedBarangay) {
+
+    const normalizedStreet = normalizeStreetName(streetName);
+
+    const verifiedBarangay = VERIFIED_STREETS[normalizedStreet];
+
+    if (verifiedBarangay) {
+        return verifiedBarangay;
+    }
+
+    return returnedBarangay;
+}
+
+/*
+|--------------------------------------------------------------------------
+| REVERSE GEOCODING
+|--------------------------------------------------------------------------
+|
+| The map marker coordinates are authoritative.
+| Reverse geocoding provides a suggested address, not a guarantee.
+|
+*/
+
+async function reverseGeocode(latitude, longitude) {
+
+    const requestNumber = ++reverseGeocodeRequest;
+
+    showAddressStatus(
+        'Finding the mapped address for this pin...',
+        '#64748b'
+    );
+
+    try {
+
+        const url =
+            'https://nominatim.openstreetmap.org/reverse' +
+            '?format=jsonv2' +
+            '&lat=' + encodeURIComponent(latitude) +
+            '&lon=' + encodeURIComponent(longitude) +
+            '&zoom=18' +
+            '&addressdetails=1';
+
+        const response = await fetch(url, {
+            headers: {
+                'Accept': 'application/json'
             }
+        });
 
-            const data = await response.json();
+        if (!response.ok) {
+            throw new Error('Reverse geocoding service unavailable.');
+        }
 
-            if (requestNumber === landmarkRequestNumber) {
-                displayLandmarks(
-                    data.elements || [],
-                    latitude,
-                    longitude
+        const data = await response.json();
+
+        if (requestNumber !== reverseGeocodeRequest) {
+            return;
+        }
+
+        const address = data.address || {};
+
+        const road =
+            address.road ||
+            address.pedestrian ||
+            address.residential ||
+            address.footway ||
+            address.path ||
+            '';
+
+        let barangay =
+            address.suburb ||
+            address.neighbourhood ||
+            address.city_district ||
+            address.quarter ||
+            address.village ||
+            '';
+
+        const streetCorrection = road
+            ? VERIFIED_STREETS[normalizeStreetName(road)]
+            : null;
+
+        if (streetCorrection) {
+            barangay = streetCorrection;
+        }
+
+        /*
+         * If a barangay was selected manually, do not silently
+         * replace it with an unverified neighboring locality.
+         */
+
+        if (
+            selectedBarangay &&
+            currentBarangayBoundary &&
+            !streetCorrection
+        ) {
+            barangay = selectedBarangay;
+        }
+
+        const city =
+            address.city ||
+            address.town ||
+            address.municipality ||
+            CITY_NAME;
+
+        const parts = [];
+
+        if (road) {
+            parts.push(road);
+        }
+
+        if (barangay) {
+            parts.push(barangay);
+        }
+
+        if (city) {
+            parts.push(city);
+        }
+
+        parts.push(COUNTRY_NAME);
+
+        const suggestedAddress = [...new Set(parts)].join(', ');
+
+        if (suggestedAddress) {
+
+            locationInput.value = suggestedAddress;
+
+            if (streetCorrection) {
+
+                selectedBarangay = streetCorrection;
+                barangaySelect.value = streetCorrection;
+
+                selectedStreet = road;
+
+                showAddressStatus(
+                    'Verified street correction applied: ' +
+                    road + ' is assigned to ' +
+                    streetCorrection + '. Please confirm before saving.'
+                );
+
+            } else {
+
+                showAddressStatus(
+                    'Address suggested from the map location. ' +
+                    'Please verify the barangay and street before saving.'
                 );
             }
 
-        } catch (error) {
-            console.error('Nearby landmarks error:', error);
+        } else {
 
-            if (requestNumber === landmarkRequestNumber) {
-                landmarkMessage.style.display = 'block';
-                landmarkMessage.innerHTML =
-                    '<i class="bi bi-exclamation-circle"></i> Nearby landmarks could not be loaded. You can still create the listing using the property pin.';
-            }
-
-        } finally {
-            if (requestNumber === landmarkRequestNumber) {
-                landmarkLoading.style.display = 'none';
-            }
+            showAddressStatus(
+                'No mapped street address was returned. Please enter the address manually.',
+                '#c73535'
+            );
         }
-    }
 
-    /* CREATE OR UPDATE MARKER */
-    function setMarker(latitude, longitude, popupText = '') {
-        latitude = parseFloat(latitude);
-        longitude = parseFloat(longitude);
+    } catch (error) {
 
-        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+        if (requestNumber !== reverseGeocodeRequest) {
             return;
         }
 
-        latitudeInput.value = latitude.toFixed(7);
-        longitudeInput.value = longitude.toFixed(7);
+        console.error('Reverse geocoding error:', error);
 
-        if (marker) {
-            map.removeLayer(marker);
-        }
+        showAddressStatus(
+            'Could not automatically find the address. ' +
+            'Please enter it manually.',
+            '#c73535'
+        );
+    }
+}
 
-        marker = L.marker(
-            [latitude, longitude],
-            { draggable: true }
+/*
+|--------------------------------------------------------------------------
+| IMAGE PREVIEW
+|--------------------------------------------------------------------------
+*/
+
+const imageInput = document.getElementById('image');
+const imagePreview = document.getElementById('imagePreview');
+const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+const removeImageBtn = document.getElementById('removeImageBtn');
+
+imageInput.addEventListener('change', function () {
+
+    const file = this.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    const allowedTypes = [
+        'image/jpeg',
+        'image/png',
+        'image/webp'
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+
+        alert('Please select a JPG, JPEG, PNG, or WEBP image.');
+
+        this.value = '';
+
+        return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+
+        alert('The maximum image size is 2 MB.');
+
+        this.value = '';
+
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+
+        imagePreview.src = event.target.result;
+
+        imagePreviewContainer.style.display = 'block';
+
+        removeImageBtn.style.display = 'inline-block';
+    };
+
+    reader.readAsDataURL(file);
+});
+
+removeImageBtn.addEventListener('click', function () {
+
+    imageInput.value = '';
+
+    imagePreview.src = '';
+
+    imagePreviewContainer.style.display = 'none';
+
+    removeImageBtn.style.display = 'none';
+});
+</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+<script>
+/*
+|--------------------------------------------------------------------------
+| MAP INITIALIZATION
+|--------------------------------------------------------------------------
+*/
+
+const defaultLatitude = 6.1164;
+const defaultLongitude = 125.1716;
+
+map = L.map('map').setView(
+    [defaultLatitude, defaultLongitude],
+    15
+);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 20,
+    attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+/*
+|--------------------------------------------------------------------------
+| MARKER ICON
+|--------------------------------------------------------------------------
+*/
+
+const propertyIcon = L.icon({
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+});
+
+/*
+|--------------------------------------------------------------------------
+| UPDATE COORDINATES
+|--------------------------------------------------------------------------
+*/
+
+function updateCoordinates(lat, lng) {
+
+    latitudeInput.value = Number(lat).toFixed(7);
+    longitudeInput.value = Number(lng).toFixed(7);
+
+    document.getElementById('mapWarning').style.display = 'none';
+
+    reverseGeocode(lat, lng);
+
+    loadNearbyLandmarks(lat, lng);
+}
+
+/*
+|--------------------------------------------------------------------------
+| PLACE OR MOVE PROPERTY MARKER
+|--------------------------------------------------------------------------
+*/
+
+function placePropertyMarker(lat, lng) {
+
+    if (currentMapMarker) {
+
+        currentMapMarker.setLatLng([lat, lng]);
+
+    } else {
+
+        currentMapMarker = L.marker(
+            [lat, lng],
+            {
+                icon: propertyIcon,
+                draggable: true,
+                autoPan: true
+            }
         ).addTo(map);
 
-        marker.bindPopup(
-            popupText ||
-            '<strong>Property Location</strong><br>Latitude: ' +
-            latitude.toFixed(7) +
-            '<br>Longitude: ' +
-            longitude.toFixed(7)
+        currentMapMarker.bindPopup(
+            '<strong>Property Location</strong><br>Drag this marker to adjust the exact position.'
         );
 
-        map.setView([latitude, longitude], 17);
-        mapWarning.style.display = 'none';
+        currentMapMarker.on('dragend', function () {
 
-        searchNearbyLandmarks(latitude, longitude);
+            const position = currentMapMarker.getLatLng();
 
-        marker.on('dragend', function (event) {
-            const position = event.target.getLatLng();
-
-            latitudeInput.value = position.lat.toFixed(7);
-            longitudeInput.value = position.lng.toFixed(7);
-
-            mapWarning.style.display = 'none';
-
-            marker.bindPopup(
-                '<strong>Property Location</strong><br>Latitude: ' +
-                position.lat.toFixed(7) +
-                '<br>Longitude: ' +
-                position.lng.toFixed(7)
-            );
-
-            marker.openPopup();
-
-            searchNearbyLandmarks(
+            updateCoordinates(
                 position.lat,
                 position.lng
-            );
-
-            showAddressStatus(
-                '<i class="bi bi-check-circle-fill"></i> Property pin updated successfully.',
-                '#14945f'
             );
         });
     }
 
-    /* MANUAL MAP PIN SELECTION */
-    map.on('click', function (event) {
-        setMarker(
-            event.latlng.lat,
-            event.latlng.lng
+    updateCoordinates(lat, lng);
+}
+
+/*
+|--------------------------------------------------------------------------
+| CLICK MAP TO PLACE PIN
+|--------------------------------------------------------------------------
+*/
+
+map.on('click', function (event) {
+
+    placePropertyMarker(
+        event.latlng.lat,
+        event.latlng.lng
+    );
+});
+
+/*
+|--------------------------------------------------------------------------
+| LOAD SAVED / OLD COORDINATES
+|--------------------------------------------------------------------------
+*/
+
+const oldLatitude = parseFloat(latitudeInput.value);
+const oldLongitude = parseFloat(longitudeInput.value);
+
+if (
+    Number.isFinite(oldLatitude) &&
+    Number.isFinite(oldLongitude) &&
+    oldLatitude >= -90 &&
+    oldLatitude <= 90 &&
+    oldLongitude >= -180 &&
+    oldLongitude <= 180
+) {
+
+    map.setView(
+        [oldLatitude, oldLongitude],
+        18
+    );
+
+    placePropertyMarker(
+        oldLatitude,
+        oldLongitude
+    );
+}
+
+/*
+|--------------------------------------------------------------------------
+| LOAD NEARBY LANDMARKS
+|--------------------------------------------------------------------------
+|
+| Uses OpenStreetMap Overpass.
+| Distances are straight-line distances from the selected pin.
+|
+*/
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+
+    const earthRadius = 6371000;
+
+    const toRadians = value => value * Math.PI / 180;
+
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+
+    const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRadians(lat1)) *
+        Math.cos(toRadians(lat2)) *
+        Math.sin(dLon / 2) ** 2;
+
+    return earthRadius * 2 * Math.atan2(
+        Math.sqrt(a),
+        Math.sqrt(1 - a)
+    );
+}
+
+function getLandmarkCategory(tags) {
+
+    if (tags.amenity === 'school' || tags.amenity === 'university' || tags.amenity === 'college') {
+        return { icon: 'bi-mortarboard', label: 'School / Education' };
+    }
+
+    if (tags.amenity === 'hospital' || tags.amenity === 'clinic' || tags.healthcare) {
+        return { icon: 'bi-hospital', label: 'Healthcare' };
+    }
+
+    if (tags.amenity === 'bank' || tags.amenity === 'atm') {
+        return { icon: 'bi-bank', label: 'Bank / ATM' };
+    }
+
+    if (tags.shop) {
+        return { icon: 'bi-shop', label: 'Shop' };
+    }
+
+    if (tags.amenity === 'restaurant' || tags.amenity === 'cafe' || tags.amenity === 'fast_food') {
+        return { icon: 'bi-cup-hot', label: 'Restaurant / Cafe' };
+    }
+
+    if (tags.amenity === 'bus_station' || tags.highway === 'bus_stop' || tags.public_transport) {
+        return { icon: 'bi-bus-front', label: 'Transportation' };
+    }
+
+    if (tags.amenity === 'place_of_worship') {
+        return { icon: 'bi-building', label: 'Place of Worship' };
+    }
+
+    if (tags.leisure || tags.landuse === 'recreation_ground') {
+        return { icon: 'bi-tree', label: 'Park / Recreation' };
+    }
+
+    if (tags.amenity === 'police') {
+        return { icon: 'bi-shield-check', label: 'Police Station' };
+    }
+
+    return { icon: 'bi-geo-alt', label: 'Nearby Place' };
+}
+
+async function loadNearbyLandmarks(latitude, longitude) {
+
+    const requestNumber = ++landmarkRequest;
+
+    landmarkList.innerHTML = '';
+
+    landmarkMessage.style.display = 'none';
+    landmarkLoading.style.display = 'block';
+
+    const query = `
+        [out:json][timeout:25];
+        (
+            node(around:1000,${latitude},${longitude})["name"]["amenity"];
+            node(around:1000,${latitude},${longitude})["name"]["shop"];
+            node(around:1000,${latitude},${longitude})["name"]["leisure"];
+            way(around:1000,${latitude},${longitude})["name"]["amenity"];
+            way(around:1000,${latitude},${longitude})["name"]["shop"];
+            way(around:1000,${latitude},${longitude})["name"]["leisure"];
+        );
+        out center tags;
+    `;
+
+    try {
+
+        const response = await fetch(
+            'https://overpass-api.de/api/interpreter',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'data=' + encodeURIComponent(query)
+            }
         );
 
-        showAddressStatus(
-            '<i class="bi bi-check-circle-fill"></i> Property location selected. Nearby landmarks are shown below the map.',
-            '#14945f'
-        );
-    });
+        if (!response.ok) {
+            throw new Error('Unable to retrieve nearby landmarks.');
+        }
 
-    /* RESTORE PREVIOUS COORDINATES */
-    const oldLatitude = parseFloat(latitudeInput.value);
-    const oldLongitude = parseFloat(longitudeInput.value);
+        const data = await response.json();
+
+        if (requestNumber !== landmarkRequest) {
+            return;
+        }
+
+        const landmarks = (data.elements || [])
+            .map(element => {
+
+                const tags = element.tags || {};
+
+                const lat = element.lat ?? element.center?.lat;
+                const lng = element.lon ?? element.center?.lon;
+
+                if (
+                    !tags.name ||
+                    !Number.isFinite(Number(lat)) ||
+                    !Number.isFinite(Number(lng))
+                ) {
+                    return null;
+                }
+
+                const distance = calculateDistance(
+                    latitude,
+                    longitude,
+                    Number(lat),
+                    Number(lng)
+                );
+
+                return {
+                    name: tags.name,
+                    lat: Number(lat),
+                    lng: Number(lng),
+                    distance: distance,
+                    category: getLandmarkCategory(tags)
+                };
+            })
+            .filter(Boolean)
+            .sort((a, b) => a.distance - b.distance);
+
+        const uniqueLandmarks = [];
+        const seen = new Set();
+
+        landmarks.forEach(item => {
+
+            const key = normalizeText(item.name);
+
+            if (!seen.has(key)) {
+                seen.add(key);
+                uniqueLandmarks.push(item);
+            }
+        });
+
+        landmarkLoading.style.display = 'none';
+
+        if (uniqueLandmarks.length === 0) {
+
+            landmarkMessage.textContent =
+                'No mapped landmarks were found within 1 kilometer of this location.';
+
+            landmarkMessage.style.display = 'block';
+
+            return;
+        }
+
+        uniqueLandmarks.slice(0, 12).forEach(item => {
+
+            const card = document.createElement('div');
+
+            card.className = 'landmark-item';
+
+            const icon = document.createElement('div');
+
+            icon.className = 'landmark-icon';
+
+            const iconElement = document.createElement('i');
+
+            iconElement.className = 'bi ' + item.category.icon;
+
+            icon.appendChild(iconElement);
+
+            const info = document.createElement('div');
+
+            info.className = 'landmark-info';
+
+            const name = document.createElement('div');
+
+            name.className = 'landmark-name';
+            name.textContent = item.name;
+
+            const category = document.createElement('div');
+
+            category.className = 'landmark-type';
+            category.textContent = item.category.label;
+
+            const distance = document.createElement('div');
+
+            distance.className = 'landmark-distance';
+
+            distance.textContent =
+                item.distance < 1000
+                    ? Math.round(item.distance) + ' meters away'
+                    : (item.distance / 1000).toFixed(2) + ' km away';
+
+            info.appendChild(name);
+            info.appendChild(category);
+            info.appendChild(distance);
+
+            card.appendChild(icon);
+            card.appendChild(info);
+
+            landmarkList.appendChild(card);
+        });
+
+    } catch (error) {
+
+        if (requestNumber !== landmarkRequest) {
+            return;
+        }
+
+        console.error('Nearby landmark error:', error);
+
+        landmarkLoading.style.display = 'none';
+
+        landmarkMessage.textContent =
+            'Nearby landmarks could not be loaded. Your selected property pin and coordinates are still available.';
+
+        landmarkMessage.style.display = 'block';
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| VALIDATE FORM BEFORE SUBMISSION
+|--------------------------------------------------------------------------
+*/
+
+document.getElementById('listingForm').addEventListener('submit', function (event) {
+
+    const latitude = parseFloat(latitudeInput.value);
+    const longitude = parseFloat(longitudeInput.value);
 
     if (
-        Number.isFinite(oldLatitude) &&
-        Number.isFinite(oldLongitude) &&
-        oldLatitude >= -90 &&
-        oldLatitude <= 90 &&
-        oldLongitude >= -180 &&
-        oldLongitude <= 180
+        !Number.isFinite(latitude) ||
+        !Number.isFinite(longitude) ||
+        latitude < -90 ||
+        latitude > 90 ||
+        longitude < -180 ||
+        longitude > 180
     ) {
-        setMarker(
-            oldLatitude,
-            oldLongitude,
-            '<strong>Property Location</strong><br>Existing saved location'
-        );
+
+        event.preventDefault();
+
+        document.getElementById('mapWarning').style.display = 'block';
+
+        alert('Please click the map to select the exact property location.');
+
+        document.getElementById('map').scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+
+        return;
     }
 
-    /* FIX MAP SIZE */
-    function fixMapSize() {
-        map.invalidateSize(true);
+    if (!locationInput.value.trim()) {
+
+        event.preventDefault();
+
+        alert('Please enter the complete property address.');
+
+        locationInput.focus();
+
+        return;
     }
 
-    setTimeout(fixMapSize, 100);
-    setTimeout(fixMapSize, 500);
-    setTimeout(fixMapSize, 1000);
+    if (!document.getElementById('title').value.trim()) {
 
-    window.addEventListener('resize', fixMapSize);
+        event.preventDefault();
 
-    /* FORM VALIDATION */
-    document.getElementById('listingForm').addEventListener('submit', function (event) {
+        alert('Please enter the property name.');
 
-        const location = locationInput.value.trim();
-        const latitude = latitudeInput.value;
-        const longitude = longitudeInput.value;
+        document.getElementById('title').focus();
 
-        if (!location) {
-            event.preventDefault();
+        return;
+    }
 
-            alert('Please enter the complete property address.');
-            locationInput.focus();
+    if (!document.getElementById('type').value) {
 
-            return false;
-        }
+        event.preventDefault();
 
-        if (!latitude || !longitude) {
-            event.preventDefault();
+        alert('Please select the property type.');
 
-            mapWarning.style.display = 'block';
+        document.getElementById('type').focus();
 
-            alert(
-                'Please click the map to select the exact property location first.'
-            );
-
-            mapElement.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center'
-            });
-
-            return false;
-        }
-
-        mapWarning.style.display = 'none';
-
-        return true;
-    });
-
+        return;
+    }
 });
+
+/*
+|--------------------------------------------------------------------------
+| MAP SIZE FIX
+|--------------------------------------------------------------------------
+*/
+
+setTimeout(function () {
+    map.invalidateSize();
+}, 300);
+
+window.addEventListener('resize', function () {
+    map.invalidateSize();
+});
+
+/*
+|--------------------------------------------------------------------------
+| INITIAL BARANGAY SELECTION
+|--------------------------------------------------------------------------
+*/
+
+if (barangaySelect.value) {
+
+    selectedBarangay = barangaySelect.value;
+
+    loadBarangayStreets(selectedBarangay);
+}
+
 </script>
 
 </body>

@@ -340,14 +340,6 @@
             color: #fff;
         }
 
-        .room-card {
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 18px;
-            background: #fff;
-        }
-
         @media (max-width: 850px) {
             .sidebar {
                 width: 220px;
@@ -409,56 +401,78 @@
 
 <body>
 
+<!-- SIDEBAR -->
 <div class="sidebar">
+
     <div class="logo">
         <h2><span>Accom</span>Finder</h2>
         <small>Owner Portal</small>
     </div>
 
     <div class="menu">
+
         <a href="{{ route('owner.dashboard') }}">
-            <span class="menu-icon"><i class="bi bi-house-door"></i></span>
+            <span class="menu-icon">
+                <i class="bi bi-house-door"></i>
+            </span>
             Dashboard
         </a>
 
         <a href="{{ route('owner.listings') }}" class="active">
-            <span class="menu-icon"><i class="bi bi-buildings"></i></span>
+            <span class="menu-icon">
+                <i class="bi bi-buildings"></i>
+            </span>
             Listings
         </a>
 
         <a href="{{ route('owner.tenants') }}">
-            <span class="menu-icon"><i class="bi bi-people"></i></span>
+            <span class="menu-icon">
+                <i class="bi bi-people"></i>
+            </span>
             Tenants
         </a>
 
         <a href="{{ route('owner.payments') }}">
-            <span class="menu-icon"><i class="bi bi-cash-stack"></i></span>
+            <span class="menu-icon">
+                <i class="bi bi-cash-stack"></i>
+            </span>
             Payments
         </a>
 
         <a href="{{ route('owner.reports') }}">
-            <span class="menu-icon"><i class="bi bi-bar-chart"></i></span>
+            <span class="menu-icon">
+                <i class="bi bi-bar-chart"></i>
+            </span>
             Reports
         </a>
 
         <a href="{{ route('owner.messages') }}">
-            <span class="menu-icon"><i class="bi bi-chat-dots"></i></span>
+            <span class="menu-icon">
+                <i class="bi bi-chat-dots"></i>
+            </span>
             Messages
         </a>
+
     </div>
 
     <div class="bottom">
         <a href="{{ route('owner.logout') }}">
-            <span class="menu-icon"><i class="bi bi-box-arrow-left"></i></span>
+            <span class="menu-icon">
+                <i class="bi bi-box-arrow-left"></i>
+            </span>
             Logout
         </a>
     </div>
+
 </div>
 
+<!-- MAIN CONTENT -->
 <div class="content">
 
+    <!-- TOP BAR -->
     <div class="topbar">
         <i class="bi bi-bell bell"></i>
+
         <span class="owner-name">
             {{ session('owner_name', 'Owner') }}
         </span>
@@ -466,35 +480,42 @@
 
     <div class="main">
 
+        <!-- PAGE HEADER -->
         <div class="page-header">
             <h1>Edit Listing</h1>
             <p>Update your property information</p>
         </div>
 
+        <!-- SUCCESS MESSAGE -->
         @if(session('success'))
             <div class="alert alert-success mt-3">
                 {{ session('success') }}
             </div>
         @endif
 
+        <!-- ERROR MESSAGE -->
         @if(session('error'))
             <div class="alert alert-danger mt-3">
                 {{ session('error') }}
             </div>
         @endif
 
+        <!-- VALIDATION ERRORS -->
         @if($errors->any())
             <div class="alert alert-danger mt-3">
+
                 <strong>Please correct the following:</strong>
+
                 <ul class="mb-0 mt-2">
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
                 </ul>
+
             </div>
         @endif
 
-        {{-- PROPERTY INFORMATION --}}
+        <!-- PROPERTY INFORMATION -->
         <div class="form-card">
 
             <h4 class="form-title">
@@ -502,48 +523,77 @@
                 Property Information
             </h4>
 
-            <form id="editListingForm"
-                  action="{{ route('owner.listings.update', $listing->id) }}"
-                  method="POST">
+            <form
+                id="editListingForm"
+                action="{{ route('owner.listings.update', $listing->id) }}"
+                method="POST"
+            >
 
                 @csrf
                 @method('PUT')
 
+                <!-- PROPERTY NAME -->
                 <div class="mb-3">
-                    <label class="form-label">Property Name</label>
-                    <input type="text"
-                           name="name"
-                           class="form-control"
-                           value="{{ old('name', $listing->name) }}"
-                           required>
+
+                    <label class="form-label">
+                        Property Name
+                    </label>
+
+                    <input
+                        type="text"
+                        name="name"
+                        class="form-control"
+                        value="{{ old('name', $listing->name) }}"
+                        required
+                    >
+
                 </div>
 
-                {{-- COMPLETE ADDRESS --}}
+                <!-- COMPLETE ADDRESS -->
                 <div class="mb-3">
-                    <label class="form-label">Complete Address</label>
-                    <input type="text"
-                           id="completeAddress"
-                           name="address"
-                           class="form-control"
-                           value="{{ old('address', $listing->address) }}"
-                           placeholder="Street, Barangay, City, Province"
-                           autocomplete="off"
-                           required>
+
+                    <label class="form-label">
+                        Complete Address
+                    </label>
+
+                    <input
+                        type="text"
+                        id="completeAddress"
+                        name="address"
+                        class="form-control"
+                        value="{{ old('address', $listing->address) }}"
+                        placeholder="Street, Barangay, City, Province"
+                        autocomplete="off"
+                        required
+                    >
+
                 </div>
 
+                <!-- FIND LOCATION BUTTON -->
                 <div class="mb-3">
-                    <button type="button"
-                            id="findLocationBtn"
-                            class="find-location-btn">
+
+                    <button
+                        type="button"
+                        id="findLocationBtn"
+                        class="find-location-btn"
+                    >
                         <i class="bi bi-geo-alt"></i>
                         Find Location
                     </button>
 
-                    <div id="locationStatus" class="location-status"></div>
+                    <div
+                        id="locationStatus"
+                        class="location-status"
+                    ></div>
+
                 </div>
 
+                <!-- MAP -->
                 <div class="mb-4">
-                    <label class="form-label">Property Location on Map</label>
+
+                    <label class="form-label">
+                        Property Location on Map
+                    </label>
 
                     <div class="map-container">
                         <div id="editMap"></div>
@@ -551,16 +601,23 @@
 
                     <div class="map-help">
                         <i class="bi bi-info-circle"></i>
+
                         Enter the complete address to search for the location.
                         You can also click the map or drag the marker to manually
                         change the property location.
                     </div>
+
                 </div>
 
+                <!-- PROPERTY TYPE -->
                 <div class="mb-3">
-                    <label class="form-label">Property Type</label>
+
+                    <label class="form-label">
+                        Property Type
+                    </label>
 
                     <select name="type" class="form-select" required>
+
                         <option value="Boarding House"
                             {{ old('type', $listing->type) == 'Boarding House' ? 'selected' : '' }}>
                             Boarding House
@@ -580,15 +637,20 @@
                             {{ old('type', $listing->type) == 'Bedspace' ? 'selected' : '' }}>
                             Bedspace
                         </option>
+
                     </select>
+
                 </div>
 
-
-
+                <!-- AVAILABILITY STATUS -->
                 <div class="mb-3">
-                    <label class="form-label">Availability Status</label>
+
+                    <label class="form-label">
+                        Availability Status
+                    </label>
 
                     <select name="status" class="form-select" required>
+
                         <option value="Available"
                             {{ old('status', $listing->status) == 'Available' ? 'selected' : '' }}>
                             Available
@@ -598,199 +660,103 @@
                             {{ old('status', $listing->status) == 'Full' ? 'selected' : '' }}>
                             Full
                         </option>
+
                     </select>
+
                 </div>
 
+                <!-- DESCRIPTION -->
                 <div class="mb-3">
-                    <label class="form-label">Description</label>
-                    <textarea name="description"
-                              class="form-control"
-                              rows="5"
-                              placeholder="Describe your property...">{{ old('description', $listing->description) }}</textarea>
+
+                    <label class="form-label">
+                        Description
+                    </label>
+
+                    <textarea
+                        name="description"
+                        class="form-control"
+                        rows="5"
+                        placeholder="Describe your property..."
+                    >{{ old('description', $listing->description) }}</textarea>
+
                 </div>
 
+                <!-- COORDINATES -->
                 <div class="coordinates-row">
+
                     <div>
-                        <label class="form-label">Latitude</label>
-                        <input type="text"
-                               name="latitude"
-                               id="latitude"
-                               class="form-control coordinate-value"
-                               value="{{ old('latitude', $listing->latitude) }}"
-                               readonly>
+
+                        <label class="form-label">
+                            Latitude
+                        </label>
+
+                        <input
+                            type="text"
+                            name="latitude"
+                            id="latitude"
+                            class="form-control coordinate-value"
+                            value="{{ old('latitude', $listing->latitude) }}"
+                            readonly
+                        >
+
                     </div>
 
                     <div>
-                        <label class="form-label">Longitude</label>
-                        <input type="text"
-                               name="longitude"
-                               id="longitude"
-                               class="form-control coordinate-value"
-                               value="{{ old('longitude', $listing->longitude) }}"
-                               readonly>
+
+                        <label class="form-label">
+                            Longitude
+                        </label>
+
+                        <input
+                            type="text"
+                            name="longitude"
+                            id="longitude"
+                            class="form-control coordinate-value"
+                            value="{{ old('longitude', $listing->longitude) }}"
+                            readonly
+                        >
+
                     </div>
+
                 </div>
 
+                <!-- ACTION BUTTONS -->
                 <div class="mt-4">
-                    <button type="submit"
-                            id="updateListingBtn"
-                            class="update-btn">
+
+                    <button
+                        type="submit"
+                        id="updateListingBtn"
+                        class="update-btn"
+                    >
                         <i class="bi bi-check-circle"></i>
                         Update Listing
                     </button>
 
-                    <a href="{{ route('owner.listings') }}"
-                       class="cancel-btn">
+                    <a
+                        href="{{ route('owner.listings') }}"
+                        class="cancel-btn"
+                    >
                         <i class="bi bi-x-circle"></i>
                         Cancel
                     </a>
+
                 </div>
 
             </form>
-        </div>
-                {{-- ROOM MANAGEMENT --}}
-        <div class="form-card">
-
-            <h4 class="form-title">
-                <i class="bi bi-door-open"></i>
-                Room Management
-            </h4>
-
-            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                <p class="text-muted mb-0">
-                    Manage the rooms under this property.
-                </p>
-
-                <a href="{{ route('owner.rooms.create', $listing->id) }}"
-                   class="btn btn-success">
-                    <i class="bi bi-plus-circle"></i>
-                    Add Room
-                </a>
-            </div>
-
-            @forelse($listing->roomRecords as $room)
-
-                <div class="room-card">
-
-                    <form action="{{ route('owner.rooms.update', [$listing->id, $room->id]) }}"
-                          method="POST">
-
-                        @csrf
-                        @method('PUT')
-
-                        <div class="row g-3">
-
-                            <div class="col-md-6">
-                                <label class="form-label">Room Name</label>
-                                <input type="text"
-                                       name="room_name"
-                                       class="form-control"
-                                       value="{{ $room->room_name }}"
-                                       required>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Monthly Price</label>
-                                <input type="number"
-                                       name="price"
-                                       class="form-control"
-                                       value="{{ $room->price }}"
-                                       min="0"
-                                       step="0.01"
-                                       required>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Capacity</label>
-                                <input type="number"
-                                       name="capacity"
-                                       class="form-control"
-                                       value="{{ $room->capacity }}"
-                                       min="1"
-                                       required>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Bathrooms</label>
-                                <input type="number"
-                                       name="bathrooms"
-                                       class="form-control"
-                                       value="{{ $room->bathrooms }}"
-                                       min="0"
-                                       required>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Status</label>
-
-                                <select name="status" class="form-select" required>
-                                    <option value="Available"
-                                        {{ $room->status == 'Available' ? 'selected' : '' }}>
-                                        Available
-                                    </option>
-
-                                    <option value="Occupied"
-                                        {{ $room->status == 'Occupied' ? 'selected' : '' }}>
-                                        Occupied
-                                    </option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-12">
-                                <label class="form-label">Description</label>
-
-                                <textarea name="description"
-                                          class="form-control"
-                                          rows="3">{{ $room->description }}</textarea>
-                            </div>
-
-                        </div>
-
-                        <div class="mt-3">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-save"></i>
-                                Update Room
-                            </button>
-                        </div>
-
-                    </form>
-
-                    <form action="{{ route('owner.rooms.delete', [$listing->id, $room->id]) }}"
-                          method="POST"
-                          class="mt-2"
-                          onsubmit="return confirm('Are you sure you want to delete this room?')">
-
-                        @csrf
-                        @method('DELETE')
-
-                        <button type="submit" class="btn btn-danger">
-                            <i class="bi bi-trash"></i>
-                            Delete Room
-                        </button>
-
-                    </form>
-
-                </div>
-
-            @empty
-
-                <div class="alert alert-info">
-                    No rooms have been added to this property yet.
-                    Click Add Room to create your first room.
-                </div>
-
-            @endforelse
 
         </div>
 
     </div>
 </div>
 
-{{-- LEAFLET JAVASCRIPT --}}
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        crossorigin=""></script>
+<!-- LEAFLET JAVASCRIPT -->
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    crossorigin=""
+></script>
 
 <script>
+
     /*
     |--------------------------------------------------------------------------
     | EXISTING COORDINATES
@@ -881,8 +847,10 @@
     */
 
     function updateCoordinateFields(latitude, longitude) {
+
         latitudeInput.value = Number(latitude).toFixed(7);
         longitudeInput.value = Number(longitude).toFixed(7);
+
     }
 
     /*
@@ -892,6 +860,7 @@
     */
 
     function moveMarker(latitude, longitude, zoom = 17) {
+
         propertyMarker.setLatLng([
             latitude,
             longitude
@@ -906,6 +875,7 @@
             latitude,
             longitude
         );
+
     }
 
     /*
@@ -915,10 +885,12 @@
     */
 
     function showLocationStatus(message, type = '') {
+
         locationStatus.textContent = message;
 
         locationStatus.className =
             'location-status ' + type;
+
     }
 
     /*
@@ -928,7 +900,9 @@
     */
 
     function getCompleteAddress() {
+
         return addressInput.value.trim();
+
     }
 
     /*
@@ -938,13 +912,16 @@
     */
 
     function escapeHtml(text) {
+
         const div = document.createElement('div');
 
         div.textContent = text;
 
         return div.innerHTML;
+
     }
-        /*
+
+    /*
     |--------------------------------------------------------------------------
     | FIND LOCATION USING OPENSTREETMAP
     |--------------------------------------------------------------------------
@@ -955,12 +932,14 @@
         const address = getCompleteAddress();
 
         if (!address) {
+
             showLocationStatus(
                 'Please enter the complete address first.',
                 'error'
             );
 
             addressInput.focus();
+
             return;
         }
 
@@ -1058,7 +1037,9 @@
 
             findLocationBtn.innerHTML =
                 '<i class="bi bi-geo-alt"></i> Find Location';
+
         }
+
     }
 
     /*
@@ -1085,8 +1066,11 @@
         }
 
         addressSearchTimer = setTimeout(function () {
+
             findLocation();
+
         }, 1000);
+
     }
 
     /*
@@ -1096,7 +1080,9 @@
     */
 
     addressInput.addEventListener('input', function () {
+
         scheduleAddressSearch();
+
     });
 
     addressInput.addEventListener('blur', function () {
@@ -1108,7 +1094,9 @@
             clearTimeout(addressSearchTimer);
 
             findLocation();
+
         }
+
     });
 
     addressInput.addEventListener('keydown', function (event) {
@@ -1120,7 +1108,9 @@
             clearTimeout(addressSearchTimer);
 
             findLocation();
+
         }
+
     });
 
     /*
@@ -1134,6 +1124,7 @@
         clearTimeout(addressSearchTimer);
 
         findLocation();
+
     });
 
     /*
@@ -1164,6 +1155,7 @@
             'Map pin moved. Latitude and longitude updated.',
             'success'
         );
+
     });
 
     /*
@@ -1190,6 +1182,7 @@
             'Map pin moved. Latitude and longitude updated.',
             'success'
         );
+
     });
 
     /*
@@ -1210,7 +1203,9 @@
     */
 
     setTimeout(function () {
+
         editMap.invalidateSize();
+
     }, 300);
 
     /*
@@ -1243,6 +1238,7 @@
 
             updateButton.innerHTML =
                 '<i class="bi bi-hourglass-split"></i> Updating...';
+
         });
 
 </script>

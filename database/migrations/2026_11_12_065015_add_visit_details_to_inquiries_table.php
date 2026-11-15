@@ -8,34 +8,22 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('inquiries', function (Blueprint $table) {
-
-            $table->unsignedBigInteger('room_id')->nullable();
-
-            $table->string('inquiry_type')
-                ->default('General');
-
-            $table->date('visit_date')->nullable();
-
-            $table->time('visit_time')->nullable();
-
-            $table->string('visit_status')->nullable();
-
-        });
+        if (!Schema::hasColumn('inquiries', 'room_id')) {
+            Schema::table('inquiries', function (Blueprint $table) {
+                $table->foreignId('room_id')
+                    ->nullable()
+                    ->constrained('rooms')
+                    ->nullOnDelete();
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('inquiries', function (Blueprint $table) {
-
-            $table->dropColumn([
-                'room_id',
-                'inquiry_type',
-                'visit_date',
-                'visit_time',
-                'visit_status',
-            ]);
-
-        });
+        if (Schema::hasColumn('inquiries', 'room_id')) {
+            Schema::table('inquiries', function (Blueprint $table) {
+                $table->dropConstrainedForeignId('room_id');
+            });
+        }
     }
 };

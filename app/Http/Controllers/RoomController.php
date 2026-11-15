@@ -3,17 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use App\Models\Accommodation;
 use App\Models\Room;
 
 class RoomController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | GET OWNER PROPERTY
-    |--------------------------------------------------------------------------
-    */
-
     private function getOwnerProperty($id)
     {
         $ownerId = session('owner_id');
@@ -26,13 +21,6 @@ class RoomController extends Controller
             ->where('owner_id', $ownerId)
             ->firstOrFail();
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE PROPERTY AVAILABILITY
-    |--------------------------------------------------------------------------
-    */
 
     private function updatePropertyAvailability($property)
     {
@@ -47,79 +35,45 @@ class RoomController extends Controller
         ]);
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | CREATE ROOM PAGE
-    |--------------------------------------------------------------------------
-    */
-
     public function create($accommodation)
     {
         $property = $this->getOwnerProperty($accommodation);
 
         if (!$property) {
-            return redirect()
-                ->route('owner.login')
-                ->with('error', 'Please login as an owner first.');
+            return redirect()->route('owner.login');
         }
 
         $rooms = $property->roomRecords()
-            ->latest()
+            ->orderBy('room_name')
             ->get();
 
-        return view('owner.create-room', [
-            'property' => $property,
-            'rooms' => $rooms,
-        ]);
+        return view('owner.create-room', compact(
+            'property',
+            'rooms'
+        ));
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | STORE ROOM
-    |--------------------------------------------------------------------------
-    */
 
     public function store(Request $request, $accommodation)
     {
         $property = $this->getOwnerProperty($accommodation);
 
         if (!$property) {
-            return redirect()
-                ->route('owner.login')
-                ->with('error', 'Please login as an owner first.');
+            return redirect()->route('owner.login');
         }
 
-        $validated = $request->validate([
-            'room_name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'capacity' => 'required|integer|min:1',
-            'bathrooms' => 'required|integer|min:0',
-            'description' => 'nullable|string',
-            'amenities' => 'nullable|array',
-            'amenities.*' => 'string|max:100',
-            'status' => 'required|in:Available,Occupied',
+        $validated = $this->validateRoom($request);
+
+        Room::create([
+            ...$validated,
+            'accommodation_id' => $property->id,
         ]);
-
-        $validated['accommodation_id'] = $property->id;
-        $validated['amenities'] = $validated['amenities'] ?? [];
-
-        Room::create($validated);
 
         $this->updatePropertyAvailability($property);
 
         return redirect()
-            ->route('owner.listings.edit', $property->id)
+            ->route('owner.rooms.create', $property->id)
             ->with('success', 'Room added successfully!');
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE ROOM
-    |--------------------------------------------------------------------------
-    */
 
     public function update(
         Request $request,
@@ -129,9 +83,7 @@ class RoomController extends Controller
         $property = $this->getOwnerProperty($accommodation);
 
         if (!$property) {
-            return redirect()
-                ->route('owner.login')
-                ->with('error', 'Please login as an owner first.');
+            return redirect()->route('owner.login');
         }
 
         $roomRecord = Room::where(
@@ -139,43 +91,23 @@ class RoomController extends Controller
             $property->id
         )->findOrFail($room);
 
-        $validated = $request->validate([
-            'room_name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'capacity' => 'required|integer|min:1',
-            'bathrooms' => 'required|integer|min:0',
-            'description' => 'nullable|string',
-            'amenities' => 'nullable|array',
-            'amenities.*' => 'string|max:100',
-            'status' => 'required|in:Available,Occupied',
-        ]);
-
-        $validated['amenities'] = $validated['amenities'] ?? [];
+        $validated = $this->validateRoom($request);
 
         $roomRecord->update($validated);
 
         $this->updatePropertyAvailability($property);
 
         return redirect()
-            ->route('owner.listings.edit', $property->id)
-            ->with('success', 'Room updated successfully!');
+            ->route('owner.rooms.create', $property->id)
+            ->with('success', 'Room information updated!');
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | DELETE ROOM
-    |--------------------------------------------------------------------------
-    */
 
     public function destroy($accommodation, $room)
     {
         $property = $this->getOwnerProperty($accommodation);
 
         if (!$property) {
-            return redirect()
-                ->route('owner.login')
-                ->with('error', 'Please login as an owner first.');
+            return redirect()->route('owner.login');
         }
 
         $roomRecord = Room::where(
@@ -188,7 +120,47 @@ class RoomController extends Controller
         $this->updatePropertyAvailability($property);
 
         return redirect()
-            ->route('owner.listings.edit', $property->id)
+            ->route('owner.rooms.create', $property->id)
             ->with('success', 'Room deleted successfully!');
+    }
+
+    private function validateRoom(Request $request)
+    {
+        $validated = $request->validate([
+            'room_name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'capacity' => 'required|integer|min:1',
+            'current_occupants' => 'required|integer|min:0',
+            'bathrooms' => 'required|integer|min:0',
+            'bathroom_type' => 'required|in:Private,Shared',
+            'description' => 'nullable|string|max:2000',
+            'amenities' => 'nullable|array',
+            'amenities.*' => 'string|max:100',
+            'status' => 'required|in:Available,Occupied,Maintenance',
+        ]);
+
+        if ($validated['current_occupants'] > $validated['capacity']) {
+            throw ValidationException::withMessages([
+                'current_occupants' =>
+                    'Current occupants cannot exceed room capacity.',
+            ]);
+        }
+
+        if ($validated['status'] === 'Available'
+            && $validated['current_occupants'] >= $validated['capacity']) {
+            throw ValidationException::withMessages([
+                'status' =>
+                    'A fully occupied room cannot be marked Available.',
+            ]);
+        }
+
+        if ($validated['current_occupants'] >= $validated['capacity']
+            && $validated['status'] === 'Available') {
+            $validated['status'] = 'Occupied';
+        }
+
+        $validated['amenities'] = $validated['amenities'] ?? [];
+
+        return $validated;
     }
 }
