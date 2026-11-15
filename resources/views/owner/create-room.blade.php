@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,11 +19,10 @@
             overflow: hidden;
         }
 
-        /* SIDEBAR */
         .sidebar {
             width: 240px;
             height: 100vh;
-            background: #fff;
+            background: white;
             border-right: 1px solid #dce3eb;
             position: fixed;
             top: 0;
@@ -96,18 +94,11 @@
             color: #30435c;
             text-decoration: none;
             font-size: 15px;
-            border-radius: 11px;
         }
 
-        .bottom a:hover {
-            color: #dc3545;
-            background: #fff5f5;
-        }
-
-        /* TOP BAR */
         .topbar {
             height: 70px;
-            background: #fff;
+            background: white;
             border-bottom: 1px solid #dce3eb;
             position: fixed;
             top: 0;
@@ -120,13 +111,6 @@
             padding: 0 28px;
         }
 
-        .owner-name {
-            font-size: 15px;
-            font-weight: 600;
-            color: #172334;
-        }
-
-        /* MAIN CONTENT */
         .content {
             margin-left: 240px;
             margin-top: 70px;
@@ -140,9 +124,7 @@
             padding-bottom: 40px;
         }
 
-        .page-heading {
-            margin-bottom: 25px;
-        }
+        .page-heading { margin-bottom: 22px; }
 
         .page-heading h2 {
             font-size: 30px;
@@ -151,36 +133,11 @@
             margin-bottom: 7px;
         }
 
-        .page-heading p {
-            color: #718096;
-            margin-bottom: 0;
-        }
-
-        /* ADD ROOM BUTTON AREA */
-        .add-room-area {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .add-room-area h4 {
-            font-size: 21px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .add-room-area p {
-            color: #718096;
-            margin: 0;
-        }
+        .page-heading p { color: #718096; }
 
         .add-room-btn {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
             gap: 9px;
             background: #14945f;
             color: white;
@@ -188,9 +145,7 @@
             border-radius: 9px;
             padding: 13px 20px;
             font-weight: 600;
-            font-size: 14px;
             cursor: pointer;
-            transition: .2s;
         }
 
         .add-room-btn:hover {
@@ -198,10 +153,9 @@
             color: white;
         }
 
-        /* ROOM FORM - HIDDEN INITIALLY */
         #roomFormSection {
             display: none;
-            margin-bottom: 28px;
+            margin-bottom: 25px;
         }
 
         .form-card {
@@ -209,9 +163,8 @@
             border: 1px solid #e2e8f0;
             border-radius: 14px;
             box-shadow: 0 3px 12px rgba(0,0,0,.05);
+            padding: 25px;
         }
-
-        .form-card-body { padding: 25px; }
 
         .form-label {
             font-weight: 600;
@@ -235,7 +188,6 @@
 
         .save-btn:hover { background: #0d7e50; }
 
-        /* AMENITIES */
         .amenity-heading {
             display: flex;
             justify-content: space-between;
@@ -250,8 +202,17 @@
             border-radius: 50%;
             background: #14945f;
             color: white;
-            font-size: 24px;
+            font-size: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
+            transition: .2s;
+        }
+
+        .add-amenity-button:hover {
+            background: #0d7e50;
+            transform: scale(1.05);
         }
 
         .amenity-grid {
@@ -276,21 +237,6 @@
             border-radius: 10px;
         }
 
-        .custom-amenity {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .remove-amenity {
-            border: none;
-            background: transparent;
-            color: #dc3545;
-            font-size: 18px;
-            cursor: pointer;
-        }
-
-        /* ROOM TILES */
         .room-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -305,8 +251,6 @@
             padding: 22px;
             box-shadow: 0 3px 10px rgba(0,0,0,.04);
             transition: .2s;
-            display: flex;
-            flex-direction: column;
             min-width: 0;
         }
 
@@ -399,6 +343,67 @@
             font-size: 11px;
         }
 
+        .room-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .room-actions > * { flex: 1; }
+        .room-actions button { width: 100%; }
+
+        /* EDIT ROOM MODAL */
+        .edit-room-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            inset: 0;
+            background: rgba(15, 23, 42, .60);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .edit-room-modal.show {
+            display: flex;
+        }
+
+        .edit-room-modal-content {
+            background: white;
+            width: 100%;
+            max-width: 650px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 35px rgba(0,0,0,.2);
+            animation: modalAppear .2s ease-out;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .edit-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .edit-modal-header h4 {
+            font-size: 21px;
+            font-weight: 700;
+            margin: 0;
+        }
+
         .empty-rooms {
             background: white;
             border: 1px solid #e2e8f0;
@@ -438,6 +443,7 @@
             }
 
             .room-grid { grid-template-columns: 1fr; }
+            .edit-room-modal-content { padding: 18px; }
         }
     </style>
 </head>
@@ -446,7 +452,6 @@
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-
     <div class="logo">
         <h2><span>Accom</span>Finder</h2>
         <small>Owner Portal</small>
@@ -490,18 +495,17 @@
             Logout
         </a>
     </div>
-
 </div>
 
 <!-- TOP BAR -->
 <div class="topbar">
     <i class="bi bi-bell me-4"></i>
-    <span class="owner-name">
+    <span class="fw-semibold">
         {{ session('owner_name', 'Owner') }}
     </span>
 </div>
 
-<!-- CONTENT -->
+<!-- MAIN CONTENT -->
 <div class="content">
     <div class="container-box">
 
@@ -521,6 +525,12 @@
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+
         @if($errors->any())
             <div class="alert alert-danger">
                 <strong>Please correct the following:</strong>
@@ -533,14 +543,7 @@
         @endif
 
         <!-- ADD ROOM BUTTON -->
-        <div class="add-room-area">
-            <div>
-                <h4>Property Rooms</h4>
-                <p>
-                    {{ $rooms->count() }} room(s) registered under this property.
-                </p>
-            </div>
-
+        <div class="d-flex justify-content-end mb-4">
             <button
                 type="button"
                 class="add-room-btn"
@@ -552,275 +555,222 @@
             </button>
         </div>
 
-        <!-- ROOM FORM: HIDDEN UNTIL BUTTON CLICK -->
+        <!-- ADD ROOM FORM -->
         <div id="roomFormSection">
-
             <div class="form-card">
-                <div class="form-card-body">
 
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h4 class="fw-bold mb-0">
-                            <i class="bi bi-door-open"></i>
-                            Add New Room
-                        </h4>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold mb-0">
+                        <i class="bi bi-door-open"></i>
+                        Add New Room
+                    </h4>
 
-                        <button
-                            type="button"
-                            class="btn-close"
-                            onclick="toggleRoomForm()"
-                            aria-label="Close"
-                        ></button>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        onclick="toggleRoomForm()"
+                    ></button>
+                </div>
+
+                <form method="POST" action="{{ route('owner.rooms.store', $property->id) }}">
+                    @csrf
+
+                    <div class="mb-3">
+                        <label class="form-label">Room Name / Number</label>
+                        <input
+                            type="text"
+                            name="room_name"
+                            class="form-control"
+                            placeholder="Example: Room 1"
+                            value="{{ old('room_name') }}"
+                            required
+                        >
                     </div>
 
-                    <form
-                        method="POST"
-                        action="{{ route('owner.rooms.store', $property->id) }}"
-                    >
-                        @csrf
-
-                        <div class="mb-3">
-                            <label class="form-label">Room Name / Number</label>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Monthly Rent (₱)</label>
                             <input
-                                type="text"
-                                name="room_name"
+                                type="number"
+                                name="price"
                                 class="form-control"
-                                placeholder="Example: Room 1"
-                                value="{{ old('room_name') }}"
+                                min="0"
+                                step="0.01"
+                                value="{{ old('price') }}"
+                                placeholder="Example: 2500"
                                 required
                             >
                         </div>
 
-                        <div class="row">
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Monthly Rent (₱)</label>
-                                <input
-                                    type="number"
-                                    name="price"
-                                    class="form-control"
-                                    min="0"
-                                    step="0.01"
-                                    value="{{ old('price') }}"
-                                    placeholder="Example: 2500"
-                                    required
-                                >
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Capacity (Persons)</label>
-                                <input
-                                    type="number"
-                                    name="capacity"
-                                    id="capacity"
-                                    class="form-control"
-                                    min="1"
-                                    value="{{ old('capacity', 1) }}"
-                                    required
-                                >
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Current Occupants</label>
-                                <input
-                                    type="number"
-                                    name="current_occupants"
-                                    id="current_occupants"
-                                    class="form-control"
-                                    min="0"
-                                    value="{{ old('current_occupants', 0) }}"
-                                    required
-                                >
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Number of CR / Bathrooms</label>
-                                <input
-                                    type="number"
-                                    name="bathrooms"
-                                    class="form-control"
-                                    min="0"
-                                    value="{{ old('bathrooms', 1) }}"
-                                    required
-                                >
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Bathroom Type</label>
-                                <select name="bathroom_type" class="form-select" required>
-                                    <option value="">Select Bathroom Type</option>
-                                    <option value="Private"
-                                        {{ old('bathroom_type') == 'Private' ? 'selected' : '' }}>
-                                        Private Bathroom
-                                    </option>
-                                    <option value="Shared"
-                                        {{ old('bathroom_type') == 'Shared' ? 'selected' : '' }}>
-                                        Shared Bathroom
-                                    </option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Room Availability</label>
-                                <select name="status" class="form-select" required>
-                                    <option value="Available"
-                                        {{ old('status', 'Available') == 'Available' ? 'selected' : '' }}>
-                                        Available
-                                    </option>
-                                    <option value="Occupied"
-                                        {{ old('status') == 'Occupied' ? 'selected' : '' }}>
-                                        Occupied
-                                    </option>
-                                </select>
-                            </div>
-
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Room Description</label>
-                            <textarea
-                                name="description"
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Capacity (Persons)</label>
+                            <input
+                                type="number"
+                                name="capacity"
                                 class="form-control"
-                                rows="3"
-                                placeholder="Describe this room..."
-                            >{{ old('description') }}</textarea>
+                                min="1"
+                                value="{{ old('capacity', 1) }}"
+                                required
+                            >
                         </div>
 
-                        @php
-                            $amenitiesList = [
-                                'WiFi',
-                                'Air Conditioning',
-                                'Electric Fan',
-                                'Private CR',
-                                'Shared CR',
-                                'Bed',
-                                'Cabinet',
-                                'Study Table',
-                                'Water Supply',
-                                'Parking',
-                            ];
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Current Occupants</label>
+                            <input
+                                type="number"
+                                name="current_occupants"
+                                class="form-control"
+                                min="0"
+                                value="{{ old('current_occupants', 0) }}"
+                                required
+                            >
+                        </div>
 
-                            $selectedAmenities = old('amenities', []);
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Number of CR / Bathrooms</label>
+                            <input
+                                type="number"
+                                name="bathrooms"
+                                class="form-control"
+                                min="0"
+                                value="{{ old('bathrooms', 1) }}"
+                                required
+                            >
+                        </div>
 
-                            if (!is_array($selectedAmenities)) {
-                                $selectedAmenities = [];
-                            }
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Bathroom Type</label>
+                            <select name="bathroom_type" class="form-select" required>
+                                <option value="">Select Bathroom Type</option>
+                                <option value="Private">Private</option>
+                                <option value="Shared">Shared</option>
+                            </select>
+                        </div>
 
-                            $customAmenities = array_filter(
-                                $selectedAmenities,
-                                function ($amenity) use ($amenitiesList) {
-                                    return !in_array($amenity, $amenitiesList);
-                                }
-                            );
-                        @endphp
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Room Availability</label>
+                            <select name="status" class="form-select" required>
+                                <option value="Available">Available</option>
+                                <option value="Occupied">Occupied</option>
+                                <option value="Maintenance">Maintenance</option>
+                            </select>
+                        </div>
+                    </div>
 
-                        <div class="mb-4">
+                    <div class="mb-3">
+                        <label class="form-label">Room Description</label>
+                        <textarea
+                            name="description"
+                            class="form-control"
+                            rows="3"
+                            placeholder="Describe this room..."
+                        >{{ old('description') }}</textarea>
+                    </div>
 
-                            <div class="amenity-heading">
-                                <label class="form-label">Room Amenities</label>
+                    @php
+                        $amenitiesList = [
+                            'WiFi',
+                            'Air Conditioning',
+                            'Electric Fan',
+                            'Private CR',
+                            'Shared CR',
+                            'Bed',
+                            'Cabinet',
+                            'Study Table',
+                            'Water Supply',
+                            'Parking',
+                        ];
+
+                        $selectedAmenities = old('amenities', []);
+
+                        if (!is_array($selectedAmenities)) {
+                            $selectedAmenities = [];
+                        }
+
+                        $customAmenities = array_filter(
+                            $selectedAmenities,
+                            fn($amenity) => !in_array($amenity, $amenitiesList)
+                        );
+                    @endphp
+
+                    <div class="mb-4">
+                        <div class="amenity-heading">
+                            <label class="form-label">Room Amenities</label>
+
+                            <button
+                                type="button"
+                                class="add-amenity-button"
+                                onclick="toggleAmenityInput('newAmenityInputArea')"
+                                title="Add another amenity"
+                            >
+                                +
+                            </button>
+                        </div>
+
+                        <div class="amenity-grid" id="newAmenityGrid">
+                            @foreach($amenitiesList as $amenity)
+                                <label class="amenity-option">
+                                    <input
+                                        type="checkbox"
+                                        name="amenities[]"
+                                        value="{{ $amenity }}"
+                                        {{ in_array($amenity, $selectedAmenities) ? 'checked' : '' }}
+                                    >
+                                    {{ $amenity }}
+                                </label>
+                            @endforeach
+
+                            @foreach($customAmenities as $amenity)
+                                <label class="amenity-option">
+                                    <input
+                                        type="checkbox"
+                                        name="amenities[]"
+                                        value="{{ $amenity }}"
+                                        checked
+                                    >
+                                    {{ $amenity }}
+                                </label>
+                            @endforeach
+                        </div>
+
+                        <div class="custom-amenity-input" id="newAmenityInputArea">
+                            <label class="form-label">Add Custom Amenity</label>
+
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    id="newCustomAmenity"
+                                    class="form-control"
+                                    placeholder="Enter amenity name"
+                                    maxlength="100"
+                                >
 
                                 <button
                                     type="button"
-                                    class="add-amenity-button"
-                                    onclick="toggleAmenityInput()"
+                                    class="btn btn-success"
+                                    onclick="addCustomAmenity('newCustomAmenity', 'newAmenityGrid')"
                                 >
-                                    +
+                                    <i class="bi bi-plus-lg"></i> Add
                                 </button>
                             </div>
-
-                            <div class="amenity-grid" id="amenityGrid">
-
-                                @foreach($amenitiesList as $amenity)
-                                    <label class="amenity-option">
-                                        <input
-                                            type="checkbox"
-                                            name="amenities[]"
-                                            value="{{ $amenity }}"
-                                            {{ in_array($amenity, $selectedAmenities) ? 'checked' : '' }}
-                                        >
-                                        {{ $amenity }}
-                                    </label>
-                                @endforeach
-
-                                @foreach($customAmenities as $amenity)
-                                    <label class="amenity-option custom-amenity">
-                                        <input
-                                            type="checkbox"
-                                            name="amenities[]"
-                                            value="{{ $amenity }}"
-                                            checked
-                                        >
-
-                                        <span>{{ $amenity }}</span>
-
-                                        <button
-                                            type="button"
-                                            class="remove-amenity"
-                                            onclick="removeAmenity(this)"
-                                        >
-                                            &times;
-                                        </button>
-                                    </label>
-                                @endforeach
-
-                            </div>
-
-                            <div class="custom-amenity-input" id="amenityInputArea">
-                                <label class="form-label">Add Custom Amenity</label>
-
-                                <div class="input-group">
-                                    <input
-                                        type="text"
-                                        id="customAmenityInput"
-                                        class="form-control"
-                                        placeholder="Enter amenity name"
-                                        maxlength="50"
-                                    >
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-success"
-                                        onclick="addCustomAmenity()"
-                                    >
-                                        Add
-                                    </button>
-                                </div>
-                            </div>
-
                         </div>
+                    </div>
 
-                        <button type="submit" class="save-btn">
-                            <i class="bi bi-check-circle me-1"></i>
-                            Save Room
-                        </button>
+                    <button type="submit" class="save-btn">
+                        <i class="bi bi-check-circle me-1"></i>
+                        Save Room
+                    </button>
 
-                        <button
-                            type="button"
-                            class="btn btn-outline-secondary ms-2"
-                            onclick="toggleRoomForm()"
-                        >
-                            Cancel
-                        </button>
-
-                    </form>
-
-                </div>
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary ms-2"
+                        onclick="toggleRoomForm()"
+                    >Cancel</button>
+                </form>
             </div>
         </div>
 
-        <!-- EXISTING ROOM TILES -->
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-4">
-            <div>
-                <h4 class="fw-bold mb-1">Rooms Added to This Property</h4>
-                <p class="text-muted mb-0">
-                    Select and review the rooms registered under this property.
-                </p>
-            </div>
-
-            <span class="badge bg-success fs-6">
-                {{ $rooms->count() }} Room(s)
-            </span>
-        </div>
-
+        <!-- ROOM TILES -->
         @if($rooms->count() > 0)
 
             <div class="room-grid">
@@ -863,17 +813,17 @@
 
                         <div class="room-detail">
                             <i class="bi bi-people"></i>
-                            <span>Capacity: {{ $room->capacity ?? 0 }} persons</span>
+                            <span>Capacity: {{ $room->capacity }} persons</span>
                         </div>
 
                         <div class="room-detail">
                             <i class="bi bi-person-check"></i>
-                            <span>Current Occupants: {{ $room->current_occupants ?? 0 }}</span>
+                            <span>Current Occupants: {{ $room->current_occupants }}</span>
                         </div>
 
                         <div class="room-detail">
                             <i class="bi bi-droplet"></i>
-                            <span>Bathrooms: {{ $room->bathrooms ?? 0 }}</span>
+                            <span>Bathrooms: {{ $room->bathrooms }}</span>
                         </div>
 
                         <div class="room-detail">
@@ -891,17 +841,265 @@
 
                             <div class="room-amenities">
                                 @forelse($roomAmenities as $amenity)
-                                    <span class="amenity-badge">
-                                        {{ $amenity }}
-                                    </span>
+                                    <span class="amenity-badge">{{ $amenity }}</span>
                                 @empty
-                                    <span class="text-muted small">
-                                        No amenities added
-                                    </span>
+                                    <span class="text-muted small">No amenities added</span>
                                 @endforelse
                             </div>
                         </div>
 
+                        <!-- EDIT AND DELETE BUTTONS -->
+                        <div class="room-actions">
+
+                            <button
+                                type="button"
+                                class="btn btn-primary btn-sm"
+                                onclick="toggleRoomEdit({{ $room->id }})"
+                            >
+                                <i class="bi bi-pencil-square"></i>
+                                Edit
+                            </button>
+
+                            <form
+                                action="{{ route('owner.rooms.delete', [$property->id, $room->id]) }}"
+                                method="POST"
+                                onsubmit="return confirm('Are you sure you want to delete this room?')"
+                            >
+                                @csrf
+                                @method('DELETE')
+
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-trash"></i>
+                                    Delete
+                                </button>
+                            </form>
+
+                        </div>
+                    </div>
+
+                    <!-- EDIT ROOM MODAL -->
+                    <div
+                        id="editRoom{{ $room->id }}"
+                        class="edit-room-modal"
+                        onclick="closeRoomModalOnBackdrop(event, {{ $room->id }})"
+                    >
+                        <div class="edit-room-modal-content">
+
+                            <div class="edit-modal-header">
+                                <h4>
+                                    <i class="bi bi-pencil-square text-primary"></i>
+                                    Edit Room
+                                </h4>
+
+                                <button
+                                    type="button"
+                                    class="btn-close"
+                                    aria-label="Close"
+                                    onclick="toggleRoomEdit({{ $room->id }})"
+                                ></button>
+                            </div>
+
+                            <form
+                                method="POST"
+                                action="{{ route('owner.rooms.update', [$property->id, $room->id]) }}"
+                            >
+                                @csrf
+                                @method('PUT')
+
+                                <div class="mb-3">
+                                    <label class="form-label">Room Name / Number</label>
+                                    <input
+                                        type="text"
+                                        name="room_name"
+                                        class="form-control"
+                                        value="{{ $room->room_name }}"
+                                        required
+                                    >
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Monthly Rent (₱)</label>
+                                        <input
+                                            type="number"
+                                            name="price"
+                                            class="form-control"
+                                            value="{{ $room->price }}"
+                                            min="0"
+                                            step="0.01"
+                                            required
+                                        >
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Capacity</label>
+                                        <input
+                                            type="number"
+                                            name="capacity"
+                                            class="form-control"
+                                            value="{{ $room->capacity }}"
+                                            min="1"
+                                            required
+                                        >
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Current Occupants</label>
+                                        <input
+                                            type="number"
+                                            name="current_occupants"
+                                            class="form-control"
+                                            value="{{ $room->current_occupants }}"
+                                            min="0"
+                                            required
+                                        >
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Number of CR / Bathrooms</label>
+                                        <input
+                                            type="number"
+                                            name="bathrooms"
+                                            class="form-control"
+                                            value="{{ $room->bathrooms }}"
+                                            min="0"
+                                            required
+                                        >
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Bathroom Type</label>
+                                        <select name="bathroom_type" class="form-select" required>
+                                            <option value="Private" {{ $room->bathroom_type === 'Private' ? 'selected' : '' }}>
+                                                Private
+                                            </option>
+                                            <option value="Shared" {{ $room->bathroom_type === 'Shared' ? 'selected' : '' }}>
+                                                Shared
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Room Availability</label>
+                                        <select name="status" class="form-select" required>
+                                            <option value="Available" {{ $room->status === 'Available' ? 'selected' : '' }}>
+                                                Available
+                                            </option>
+                                            <option value="Occupied" {{ $room->status === 'Occupied' ? 'selected' : '' }}>
+                                                Occupied
+                                            </option>
+                                            <option value="Maintenance" {{ $room->status === 'Maintenance' ? 'selected' : '' }}>
+                                                Maintenance
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Room Description</label>
+                                    <textarea
+                                        name="description"
+                                        class="form-control"
+                                        rows="3"
+                                    >{{ $room->description }}</textarea>
+                                </div>
+
+                                <!-- ROOM AMENITIES WITH ADD BUTTON -->
+                                <div class="mb-4">
+
+                                    <div class="amenity-heading">
+                                        <label class="form-label mb-0">Room Amenities</label>
+
+                                        <button
+                                            type="button"
+                                            class="add-amenity-button"
+                                            onclick="toggleAmenityInput('editAmenityInput{{ $room->id }}')"
+                                            title="Add another amenity"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+
+                                    <div
+                                        class="amenity-grid"
+                                        id="editAmenityGrid{{ $room->id }}"
+                                    >
+                                        @foreach($amenitiesList as $amenity)
+                                            <label class="amenity-option">
+                                                <input
+                                                    type="checkbox"
+                                                    name="amenities[]"
+                                                    value="{{ $amenity }}"
+                                                    {{ in_array($amenity, $roomAmenities) ? 'checked' : '' }}
+                                                >
+                                                {{ $amenity }}
+                                            </label>
+                                        @endforeach
+
+                                        @foreach($roomAmenities as $amenity)
+                                            @if(!in_array($amenity, $amenitiesList))
+                                                <label class="amenity-option">
+                                                    <input
+                                                        type="checkbox"
+                                                        name="amenities[]"
+                                                        value="{{ $amenity }}"
+                                                        checked
+                                                    >
+                                                    {{ $amenity }}
+                                                </label>
+                                            @endif
+                                        @endforeach
+                                    </div>
+
+                                    <!-- CUSTOM AMENITY INPUT -->
+                                    <div
+                                        class="custom-amenity-input"
+                                        id="editAmenityInput{{ $room->id }}"
+                                    >
+                                        <label class="form-label">Add Another Amenity</label>
+
+                                        <div class="input-group">
+                                            <input
+                                                type="text"
+                                                id="customAmenity{{ $room->id }}"
+                                                class="form-control"
+                                                placeholder="Enter amenity name"
+                                                maxlength="100"
+                                            >
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-success"
+                                                onclick="addCustomAmenity(
+                                                    'customAmenity{{ $room->id }}',
+                                                    'editAmenityGrid{{ $room->id }}'
+                                                )"
+                                            >
+                                                <i class="bi bi-plus-lg"></i>
+                                                Add
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-secondary"
+                                        onclick="toggleRoomEdit({{ $room->id }})"
+                                    >
+                                        Cancel
+                                    </button>
+
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="bi bi-check-circle"></i>
+                                        Save Changes
+                                    </button>
+                                </div>
+
+                            </form>
+                        </div>
                     </div>
 
                 @endforeach
@@ -914,7 +1112,7 @@
                 <i class="bi bi-door-closed"></i>
                 <h5 class="fw-bold mt-3">No Rooms Added Yet</h5>
                 <p class="mb-0">
-                    Click the Add New Room button above to create your first room.
+                    Click Add New Room to create your first room.
                 </p>
             </div>
 
@@ -924,7 +1122,7 @@
 </div>
 
 <script>
-    /* OPEN/CLOSE ROOM FORM */
+    // ADD ROOM FORM
     function toggleRoomForm() {
         const section = document.getElementById('roomFormSection');
         const button = document.getElementById('toggleRoomForm');
@@ -945,24 +1143,48 @@
         }
     }
 
-    /* AMENITIES FORM */
-    function toggleAmenityInput() {
-        const area = document.getElementById('amenityInputArea');
-        const isHidden = window.getComputedStyle(area).display === 'none';
+    // OPEN AND CLOSE EDIT ROOM MODAL
+    function toggleRoomEdit(roomId) {
+        const modal = document.getElementById('editRoom' + roomId);
 
-        area.style.display = isHidden ? 'block' : 'none';
+        if (!modal) return;
 
-        if (isHidden) {
-            document.getElementById('customAmenityInput').focus();
+        modal.classList.toggle('show');
+
+        const anyModalOpen =
+            document.querySelector('.edit-room-modal.show') !== null;
+
+        document.body.style.overflow = anyModalOpen ? 'hidden' : '';
+    }
+
+    // CLOSE MODAL WHEN CLICKING OUTSIDE
+    function closeRoomModalOnBackdrop(event, roomId) {
+        if (event.target === event.currentTarget) {
+            toggleRoomEdit(roomId);
         }
     }
 
-    function addCustomAmenity() {
-        const input = document.getElementById('customAmenityInput');
-        const grid = document.getElementById('amenityGrid');
-        const amenityName = input.value.trim();
+    // SHOW OR HIDE CUSTOM AMENITY INPUT
+    function toggleAmenityInput(id) {
+        const area = document.getElementById(id);
 
-        if (!amenityName) {
+        if (!area) return;
+
+        const isHidden = window.getComputedStyle(area).display === 'none';
+
+        area.style.display = isHidden ? 'block' : 'none';
+    }
+
+    // ADD CUSTOM AMENITY
+    function addCustomAmenity(inputId, gridId) {
+        const input = document.getElementById(inputId);
+        const grid = document.getElementById(gridId);
+
+        if (!input || !grid) return;
+
+        const name = input.value.trim();
+
+        if (!name) {
             alert('Please enter an amenity name.');
             input.focus();
             return;
@@ -973,7 +1195,7 @@
         );
 
         if (existing.some(item =>
-            item.value.toLowerCase() === amenityName.toLowerCase()
+            item.value.toLowerCase() === name.toLowerCase()
         )) {
             alert('This amenity already exists.');
             input.focus();
@@ -981,28 +1203,16 @@
         }
 
         const label = document.createElement('label');
-        label.className = 'amenity-option custom-amenity';
+        label.className = 'amenity-option';
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.name = 'amenities[]';
-        checkbox.value = amenityName;
+        checkbox.value = name;
         checkbox.checked = true;
 
-        const text = document.createElement('span');
-        text.textContent = amenityName;
-
-        const removeButton = document.createElement('button');
-        removeButton.type = 'button';
-        removeButton.className = 'remove-amenity';
-        removeButton.innerHTML = '&times;';
-        removeButton.onclick = function() {
-            removeAmenity(removeButton);
-        };
-
         label.appendChild(checkbox);
-        label.appendChild(text);
-        label.appendChild(removeButton);
+        label.appendChild(document.createTextNode(' ' + name));
 
         grid.appendChild(label);
 
@@ -1010,49 +1220,21 @@
         input.focus();
     }
 
-    function removeAmenity(button) {
-        const label = button.closest('.amenity-option');
+    // CLOSE OPEN MODALS WITH ESCAPE KEY
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            document.querySelectorAll('.edit-room-modal.show').forEach(modal => {
+                modal.classList.remove('show');
+            });
 
-        if (label) {
-            label.remove();
+            document.body.style.overflow = '';
         }
-    }
+    });
 
-    document.getElementById('customAmenityInput')
-        .addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                addCustomAmenity();
-            }
-        });
-
-    /* VALIDATE ROOM OCCUPANCY */
-    const capacityInput = document.getElementById('capacity');
-    const occupantsInput = document.getElementById('current_occupants');
-
-    function validateOccupants() {
-        const capacity = parseInt(capacityInput.value, 10);
-        const occupants = parseInt(occupantsInput.value, 10);
-
-        occupantsInput.setCustomValidity('');
-
-        if (occupants < 0) {
-            occupantsInput.setCustomValidity(
-                'Current occupants cannot be negative.'
-            );
-        } else if (capacity > 0 && occupants > capacity) {
-            occupantsInput.setCustomValidity(
-                'Current occupants cannot exceed room capacity.'
-            );
-        }
-    }
-
-    capacityInput.addEventListener('input', validateOccupants);
-    occupantsInput.addEventListener('input', validateOccupants);
-
-    /* REOPEN FORM IF VALIDATION FAILED */
+    // REOPEN ADD ROOM FORM IF VALIDATION FAILS
     @if($errors->any())
         document.getElementById('roomFormSection').style.display = 'block';
+
         document.getElementById('toggleRoomForm').innerHTML =
             '<i class="bi bi-x-circle"></i> Close Room Form';
     @endif
