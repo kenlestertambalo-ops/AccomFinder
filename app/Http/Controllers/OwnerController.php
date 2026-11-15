@@ -183,7 +183,7 @@ class OwnerController extends Controller
             'name' => 'required|string|max:255',
             'address' => 'required|string|max:255',
             'type' => 'required|string|max:100',
-            'price' => 'required|numeric|min:0',
+            'price' => 'nullable|numeric|min:0',
             'status' => 'required|in:Available,Full,Unavailable',
             'description' => 'nullable|string',
             'latitude' => 'nullable|numeric',

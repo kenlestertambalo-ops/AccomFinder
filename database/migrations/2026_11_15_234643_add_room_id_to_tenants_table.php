@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -18,10 +17,10 @@ return new class extends Migration
 
     public function down(): void
     {
-        if (Schema::hasColumn('tenants', 'room_id')) {
-            Schema::table('tenants', function (Blueprint $table) {
+        Schema::table('tenants', function (Blueprint $table) {
+            if (Schema::hasColumn('tenants', 'room_id')) {
                 $table->dropColumn('room_id');
-            });
-        }
+            }
+        });
     }
 };
